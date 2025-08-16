@@ -118,6 +118,14 @@ make KCONFIG_CONFIG=./reduced menuconfig
 Be sure to use `LLVM=1` on **all** commands when doing work with LLVM.
 The outputs will default to GCC selections if you do not.
 
+When building, you generally will want output visible because especially the
+configuration phase can save you a bit of time with the failure information
+right there.
+
+```
+nixos-rebuild boot --print-build-logs
+```
+
 ## Adding to `allnoconfig` (Additive approach)
 1. Begin with a `make allnoconfig` that has nothing set
    ```
