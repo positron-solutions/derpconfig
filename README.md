@@ -115,6 +115,58 @@ make KCONFIG_CONFIG=./reduced menuconfig
 Be sure to use `LLVM=1` on **all** commands when doing work with LLVM.
 The outputs will default to GCC selections if you do not.
 
+## Adding to `allnoconfig` (Additive approach)
+1. Begin with a `make allnoconfig` that has nothing set
+   ```
+   make ARCH=x86_64 LLVM=1 allnoconfig
+   ```
+2. Run the provided kernel script to interrogate lsmod.
+   ```
+   perl scripts/kconfig/streamline_config.pl 2>/dev/null \
+     | rg =y\|=m \
+     | sed 's/=y/= lib.mkForce yes;/g' \
+     | sed 's/=m/= lib.mkForce module;/g'
+   ```
+   If you do not have `rg` installed, use `grep`.
+3. Convert the output to a kernel patch that represents the base needs of your
+   system.
+4. Be sure to set the kernel's `defconfig` argument to `"ARCH=x86_64
+   allnoconfig"` so that you will start with only base NixOS options on top of
+   nothing.
+5. Fix up sympathetic options 
+
+This workflow is in my opinion more likely to result in an incomplete boot.
+However, because the kernel is so small, it is much faster to rebuild and the
+amount of configuration you are handling is much, much less.  **The NixOS options
+do turn on way too much, and we might need to bring in extra patches to tone the
+driver spam down.**
+
+## Reducing Defconfig (Subtractive Approach)
+
+1. Follow steps 1 and 2 from the 
+2. `make localmodconfig` to prune a bunch of settings from your config
+3. Diff them.  Now select any large piles of unused things and convert them to
+  `structuredExtraConfig` the same as above.
+4. Change the kernel to use `"defconfig"` as its `defconfig` (default
+  configuration) settings.
+5. Fix up sympathetic options 
+
+This workflow is a pain because of the amount of structured config you need to
+turn off.  There are easily 2k options you will want to get rid of at least.
+
+## Helpful Nixpkgs to Know
+
+- NixOS default kernel [options](https://github.com/NixOS/nixpkgs/blob/master/pkgs/os-specific/linux/kernel/common-config.nix)
+- Generic
+  [kernel](https://github.com/NixOS/nixpkgs/blob/master/pkgs/os-specific/linux/kernel/generic.nix)
+- How NixOS [generates](https://github.com/NixOS/nixpkgs/blob/master/pkgs/os-specific/linux/kernel/generate-config.pl) the config  
+- Nvidia [drivers](https://github.com/NixOS/nixpkgs/blob/master/pkgs/os-specific/linux/nvidia-x11/generic.nix)
+- Nvidia open source
+  [module](https://github.com/NixOS/nixpkgs/blob/master/pkgs/os-specific/linux/nvidia-x11/open.nix)
+  
+  I have no idea how `linuxPackagesFor` relates these things.  Please add this
+  information if you know.
+
 ## Contribution Ideas
 
 - More pre-made `extraStructuredConfig` to reduce the absurd amount of old
