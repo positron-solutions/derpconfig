@@ -76,16 +76,17 @@ also the additive and substractive workflows described farther below.
    ```bash
     diff --changed-group-format='%>' --unchanged-group-format='' old .config
    ```
-1. Create a kernel patch with `structuredExtraConfig` that can be merged on top
-   of options set by NixOS in [the
-   defaults](https://github.com/NixOS/nixpkgs/blob/master/pkgs/os-specific/linux/kernel/common-config.nix).
-   This must be added to `boot.kernelPatches`.
+A modern regex:
    ```ChatGPT
    Dear Sam, please convert the following lines of Linux kernel config to NixOS
    extraStructured config within a kernel patch for boot.kernelPatches.  Use
    lib.kernel to coerce choices to the correct format.  Use mkForce when
    disabling.
-   ```
+   ```   
+1. Create a kernel patch with `structuredExtraConfig` that can be merged on top
+   of options set by NixOS in [the
+   defaults](https://github.com/NixOS/nixpkgs/blob/master/pkgs/os-specific/linux/kernel/common-config.nix).
+   This must be added to `boot.kernelPatches`.
 1. `nixos-rebuild switch` and it takes about an hour on a five year-old laptop
    unless you have significantly reduced the drivers and things.  
 1. 💡 **The first runs will likely not be successful**!  You must fix up
@@ -219,7 +220,8 @@ be much more.  It is a community tip char where we users will drive development
 by showing open source authors, maintainers, and contributors, what we want them
 to work on.  In the course of deciding what to work on, users will provide each
 other support.  Good support comes from people who know what needs to be done.
-When good users who give support are able to decide what to work on, 
+When good users who give support are able to decide what to work on, the people
+who understand users are talking to the people who build the programs.
 
 Give me a monetary tip to accelerate its development.  As soon as it is
 underway, the world will move faster with more open source, more open IP in
