@@ -2,8 +2,7 @@
   description = "Kernel devshell for Kernel configurationg";
 
   inputs = {
-    pins.url = "github:positron-solutions/pins";
-    nixpkgs.follows = "pins/nixpkgs";
+    nixpkgs.url = "github:NixOS/nixpkgs/";
   };
 
   outputs = inputs: with inputs;
