@@ -90,9 +90,9 @@ A modern regex:
 1. `nixos-rebuild switch` and it takes about an hour on a five year-old laptop
    unless you have significantly reduced the drivers and things.  
 1. 💡 **The first runs will likely not be successful**!  You must fix up
-   sympathetic options as described below.   
+   dependent options as described below.   
 
-### Fixing Up Sympathetic Options
+### Fixing Up Dependent Options
 
 During rebuild, NixOS runs a script that will identify unused options.  That
 were disabled as a result of the ones you selected.  Just add them to the pile
@@ -145,7 +145,7 @@ nixos-rebuild boot --print-build-logs
 4. Be sure to set the kernel's `defconfig` argument to `"ARCH=x86_64
    allnoconfig"` so that you will start with only base NixOS options on top of
    nothing.
-5. Fix up sympathetic options 
+5. Fix up dependent options 
 
 This workflow is in my opinion more likely to result in an incomplete boot.
 However, because the kernel is so small, it is much faster to rebuild and the
@@ -161,7 +161,7 @@ driver spam down.**
   `structuredExtraConfig` the same as above.
 4. Change the kernel to use `"defconfig"` as its `defconfig` (default
   configuration) settings.
-5. Fix up sympathetic options 
+5. Fix up dependent options 
 
 This workflow is a pain because of the amount of structured config you need to
 turn off.  There are easily 2k options you will want to get rid of at least.
