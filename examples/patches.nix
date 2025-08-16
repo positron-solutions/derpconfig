@@ -191,6 +191,38 @@ rec {
       AMD_NUMA = lib.mkForce no; # old Numa
 
       ATALK = lib.mkForce no;
+
+      ISA = lib.mkForce no;
+      ISAPNP = lib.mkForce no;
+      PNP = lib.mkForce no;
+      PCI_GO_ANY = lib.mkForce no;
+      PCI_QUIRKS = lib.mkForce no;
+      TR = lib.mkForce no;
+      ARCNET = lib.mkForce no;
+      FDDI = lib.mkForce no;
+      DLCI = lib.mkForce no;
+      FRAMERELAY = lib.mkForce no;
+      MTD = lib.mkForce no;
+      HID_GYRATION = lib.mkForce no;
+      HID_SUNPLUS = lib.mkForce no;
+      VIDEO_V4L1 = lib.mkForce no;
+      RADIO_ADAPTERS = lib.mkForce no;
+      DVB = lib.mkForce no;
+      I2O = lib.mkForce no;
+      IRDA = lib.mkForce no;
+      BT_HIDP = lib.mkForce no;
+      BT_RFCOMM = lib.mkForce no;
+      BT_BNEP = lib.mkForce no;
+      NET_DSA_LEGACY = lib.mkForce no;
+      PPP = lib.mkForce no;
+      SLIP = lib.mkForce no;
+      PLIP = lib.mkForce no;
+      NET_SB1000 = lib.mkForce no;
+      IEEE1394 = lib.mkForce no;
+      FB = lib.mkForce no;
+      EISA = lib.mkForce no;
+      VME = lib.mkForce no;
+      OLPC = lib.mkForce no;
     };
   };
 
@@ -203,6 +235,9 @@ rec {
       SURFACE_PLATFORMS = no;
       FIREWIRE = lib.mkForce no;
       MACINTOSH_DRIVERS = no;
+      INFINIBAND = lib.mkForce no;
+      ATM = lib.mkForce no;
+
     };
   };
 
