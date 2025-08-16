@@ -1,4 +1,4 @@
-{ config, pkgs, pkgsUnstable, lib, ...}:
+{ config, pkgs, lib, ...}:
 
 let 
   # Stdenv with a few more LLVM tools available
@@ -8,8 +8,8 @@ let
       pkgs.lld
     ];
 
-  kernel = pkgsUnstable.linuxPackagesFor
-    (pkgsUnstable.linuxKernel.kernels.linux_latest.override {
+  kernel = pkgs.linuxPackagesFor
+    (pkgs.linuxKernel.kernels.linux_latest.override {
     extraMakeFlags = [
       # Gcc flags.
       # "KCFLAGS+=-O3"
@@ -63,6 +63,16 @@ in {
   # necessary to get the nvidia driver through the kernel we let-bound 
   # earlier.  Using boot.kernelPackages did NOT work.
   hardware.nvidia.package = kernel.nvidiaPackages.beta.overrideAttrs (old: {
+
+    # Getting a new Nvidia version is frequently required when building the
+    # latest versions of kernels.
+    version = "580.76.05";
+    sha256_64bit = "sha256-IZvmNrYJMbAhsujB4O/4hzY8cx+KlAyqh7zAVNBdl/0=";
+    sha256_aarch64 = "sha256-NL2DswzVWQQMVM092NmfImqKbTk9VRgLL8xf4QEvGAQ=";
+    openSha256 = "sha256-xEPJ9nskN1kISnSbfBigVaO6Mw03wyHebqQOQmUg/eQ=";
+    settingsSha256 = "sha256-ll7HD7dVPHKUyp5+zvLeNqAb6hCpxfwuSyi+SAXapoQ=";
+    persistencedSha256 = "sha256-bs3bUi8LgBu05uTzpn2ugcNYgR5rzWEPaTlgm0TIpHY=";
+
     kernelModuleMakeFlags = [
       # The clange here will not by default match the one used during the kernel build
       "IGNORE_CC_MISMATCH=1"
