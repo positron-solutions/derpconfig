@@ -1,5 +1,8 @@
 # DerpConfig
 
+⚠️ This code is still in development and I am probably building kernel after
+kernel to debug ways to compose and derive more useful configs faster.
+
 Small setup for iterating on NixOS kernel configs.  People do this to obtain
 smaller and faster kernels.  Smaller kernels build faster, especially on faster
 kernels.
