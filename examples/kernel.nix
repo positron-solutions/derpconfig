@@ -8,7 +8,7 @@ let
       pkgs.lld
     ];
 
-  kernel = pkgs.linuxPackagesFor
+  kernelPackages = pkgs.linuxPackagesFor
     (pkgs.linuxKernel.kernels.linux_latest.override {
     extraMakeFlags = [
       # Gcc flags.
@@ -42,13 +42,15 @@ let
     # enough options to get this running than to whittle down the defaults.  
     # However, it is still a lot and you may miss some that are more important
     # than what you gain by starting from a clean slate.  
-    # defconfig = "ARCH=x86_64 allnoconfig LLVM=1";
-  });
+    # defconfig = "allnoconfig LLVM=1 ARCH=x86_64";
 
+    # Be sure to always use defaults compatible with the intended host
+    defconfig = "defconfig LLVM=1 ARCH=x86_64";
+  });
 in {
   # Customize the patch set in use for either adding to a allnoconfig or
   # subtracing from defconfig
-  boot.kernelPatches = (import ./patches.nix {inherit lib;}).remove-from-defconfig;
+  boot.kernelPatches = (import ./patches.nix {inherit lib;}).subtract;
 
   # Just use whatever latest Kernel is out?
   # boot.kernelPackages = nixpkgs-unstable.linuxPackages_latest;
@@ -57,38 +59,26 @@ in {
   # boot.kernelPackages = pkgs.linuxPackages_latest;
 
   # Nah, build kernels from source!
-  boot.kernelPackages = kernel;
-
-  # In order to get the Nvidia kernel modules included correctly, it was 
-  # necessary to get the nvidia driver through the kernel we let-bound 
-  # earlier.  Using boot.kernelPackages did NOT work.
-  hardware.nvidia.package = kernel.nvidiaPackages.beta.overrideAttrs (old: {
-
-    # Getting a new Nvidia version is frequently required when building the
-    # latest versions of kernels.
+  boot.kernelPackages = kernelPackages;
+  hardware.nvidia.package = (config.boot.kernelPackages.nvidiaPackages.mkDriver {
     version = "580.76.05";
+
     sha256_64bit = "sha256-IZvmNrYJMbAhsujB4O/4hzY8cx+KlAyqh7zAVNBdl/0=";
     sha256_aarch64 = "sha256-NL2DswzVWQQMVM092NmfImqKbTk9VRgLL8xf4QEvGAQ=";
     openSha256 = "sha256-xEPJ9nskN1kISnSbfBigVaO6Mw03wyHebqQOQmUg/eQ=";
     settingsSha256 = "sha256-ll7HD7dVPHKUyp5+zvLeNqAb6hCpxfwuSyi+SAXapoQ=";
     persistencedSha256 = "sha256-bs3bUi8LgBu05uTzpn2ugcNYgR5rzWEPaTlgm0TIpHY=";
-
-    kernelModuleMakeFlags = [
-      # The clange here will not by default match the one used during the kernel build
-      "IGNORE_CC_MISMATCH=1"
-    ];
-
-    # Override the kernel module to provide a clang and knowledge of glibc
+  # });
+  }).overrideAttrs (old: {
     passthru = old.passthru // {
-      open = old.passthru.open.overrideAttrs (oldOpen: {
-         makeFlags = oldOpen.makeFlags or [] ++ [
-           # Provide an unwrapped clang just for better behavior
-           "CC=${pkgs.llvmPackages.clang-unwrapped}/bin/clang"
-           "KCFLAGS+=-isystem ${pkgs.glibc.dev}/include"
-           "KCFLAGS+=-Wno-implicit-function-declaration"
-         ];
-       });
-     };
+      open = old.passthru.open.overrideAttrs (o: {
+        makeFlags = (o.makeFlags or []) ++ [
+          "CC=${pkgs.llvmPackages.clang-unwrapped}/bin/clang"
+          "KCFLAGS+=-isystem ${pkgs.glibc.dev}/include"
+          "KCFLAGS+=-Wno-implicit-function-declaration"
+        ];
+      });
+    };
   });
 
   # .:: Tiny boot partion options included below

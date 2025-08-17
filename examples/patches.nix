@@ -31,9 +31,11 @@ rec {
 
   # Subtraction strategy, starting from defconfig and NixOS defaults, reduced
   # with localmodconfig.
-  remove-from-defconfig = [
+  subtract = [
     user-friendly
     custom
+
+    (builtins.trace "no sec" no-sec) # be aware before you choose
 
     llvm-lto
     small
@@ -182,7 +184,7 @@ rec {
       PARPORT = lib.mkForce no;
 
       # No old graphics
-      FB_VESA = lib.mkForce no;
+      FB_VESA = lib.mkForce unset;
 
       # no CD ROM (will also limit reads of dual-use flash drive images?)
       # those images mainly need to be read by your EFI anyway
@@ -192,37 +194,36 @@ rec {
 
       ATALK = lib.mkForce no;
 
-      ISA = lib.mkForce no;
-      ISAPNP = lib.mkForce no;
-      PNP = lib.mkForce no;
-      PCI_GO_ANY = lib.mkForce no;
+      ISA = lib.mkForce unset;
+      ISAPNP = lib.mkForce unset;
+      PNP = lib.mkForce unset;
+      PCI_GO_ANY = lib.mkForce unset;
       PCI_QUIRKS = lib.mkForce no;
-      TR = lib.mkForce no;
+      TR = lib.mkForce unset;
       ARCNET = lib.mkForce no;
       FDDI = lib.mkForce no;
-      DLCI = lib.mkForce no;
-      FRAMERELAY = lib.mkForce no;
+      # DLCI = lib.mkForce no;
+      # FRAMERELAY = lib.mkForce no;
       MTD = lib.mkForce no;
       HID_GYRATION = lib.mkForce no;
       HID_SUNPLUS = lib.mkForce no;
-      VIDEO_V4L1 = lib.mkForce no;
+      VIDEO_V4L1 = lib.mkForce unset;
       RADIO_ADAPTERS = lib.mkForce no;
-      DVB = lib.mkForce no;
-      I2O = lib.mkForce no;
-      IRDA = lib.mkForce no;
+      # DVB = lib.mkForce unset;
+      I2O = lib.mkForce unset;
+      IRDA = lib.mkForce unset;
       BT_HIDP = lib.mkForce no;
       BT_RFCOMM = lib.mkForce no;
       BT_BNEP = lib.mkForce no;
-      NET_DSA_LEGACY = lib.mkForce no;
-      PPP = lib.mkForce no;
-      SLIP = lib.mkForce no;
-      PLIP = lib.mkForce no;
-      NET_SB1000 = lib.mkForce no;
-      IEEE1394 = lib.mkForce no;
+      NET_DSA_LEGACY = lib.mkForce unset;
+      # PPP = lib.mkForce no; # already no
+      SLIP = lib.mkForce unset;
+      PLIP = lib.mkForce unset;
+      NET_SB1000 = lib.mkForce unset;
+      IEEE1394 = lib.mkForce unset;
       FB = lib.mkForce no;
-      EISA = lib.mkForce no;
-      VME = lib.mkForce no;
-      OLPC = lib.mkForce no;
+      OLPC = lib.mkForce unset;
+      # W1 = lib.mkForce no;
     };
   };
 
@@ -242,7 +243,7 @@ rec {
   };
 
   no-fun = {
-    name = "no-fun";
+    name = builtins.trace "loading patch: no-fun" "no-fun";
     patch = null;
     structuredExtraConfig = with lib.kernel; {
       INPUT_MISC = lib.mkForce no;
@@ -253,7 +254,7 @@ rec {
   };
 
   no-intel = {
-    name = "no-intel";
+    name = builtins.trace "loading patch: no-intel" "no-intel";
     patch = null;
     structuredExtraConfig = with lib.kernel; {
       X86_INTEL_LPSS = lib.mkForce no;
@@ -261,13 +262,14 @@ rec {
   };
 
   no-sec = {
-    name = "no-sec";
+    name = builtins.trace "loading patch: no-sec" "no-sec";
     patch = null;
     structuredExtraConfig = with lib.kernel; {
       # We are not a k8s server
       CPU_MITIGATIONS = lib.mkForce no;
       SECURITY_SELINUX = lib.mkForce no;
-      # SECURITY_APPARMOR = no; # couldn't set!
+      SECURITY_APPARMOR = unset; # couldn't set!
+      
     };
   };
   
@@ -891,7 +893,7 @@ rec {
       POWER_RESET_GPIO = lib.mkForce unset;
       POWER_RESET_GPIO_RESTART = lib.mkForce unset;
       REISERFS_FS_POSIX_ACL = lib.mkForce unset;
-      REISERFS_FS_SECURITY = lib.mkForce unset;
+      # REISERFS_FS_SECURITY = lib.mkForce unset;
       REISERFS_FS_XATTR = lib.mkForce unset;
       MITIGATION_SLS = lib.mkForce unset;
       DRM_PANIC_SCREEN_QR_CODE = lib.mkForce unset;
@@ -955,6 +957,46 @@ rec {
       KVM_GENERIC_DIRTYLOG_READ_PROTECT = lib.mkForce unset;
       KVM_MMIO = lib.mkForce unset;
       KVM_VFIO = lib.mkForce unset;
+
+      BT_RFCOMM_TTY = lib.mkForce unset;
+      DLCI = lib.mkForce unset;
+      DVB = lib.mkForce unset;
+      EISA = lib.mkForce unset;
+      FB_3DFX_ACCEL = lib.mkForce unset;
+      FB_ATY_CT = lib.mkForce unset;
+      FB_ATY_GX = lib.mkForce unset;
+      FB_EFI = lib.mkForce unset;
+      FB_HYPERV = lib.mkForce unset;
+      FB_NVIDIA_I2C = lib.mkForce unset;
+      FB_RIVA_I2C = lib.mkForce unset;
+      FB_SAVAGE_ACCEL = lib.mkForce unset;
+      FB_SAVAGE_I2C = lib.mkForce unset;
+      FB_SIS_300 = lib.mkForce unset;
+      FB_SIS_315 = lib.mkForce unset;
+      FB_VESA = lib.mkForce unset;
+      FRAMEBUFFER_CONSOLE_DEFERRED_TAKEOVER = lib.mkForce unset;
+      FRAMERELAY = lib.mkForce unset;
+      I2O = lib.mkForce unset;
+      IEEE1394 = lib.mkForce unset;
+      IRDA = lib.mkForce unset;
+      ISA = lib.mkForce unset;
+      ISAPNP = lib.mkForce unset;
+      MTD_COMPLEX_MAPPINGS = lib.mkForce unset;
+      MTD_TESTS = lib.mkForce unset;
+      NET_DSA_LEGACY = lib.mkForce unset;
+      NET_SB1000 = lib.mkForce unset;
+      NVIDIA_SHIELD_FF = lib.mkForce unset;
+      OLPC = lib.mkForce unset;
+      PCI_GO_ANY = lib.mkForce unset;
+      PLIP = lib.mkForce unset;
+      PNP = lib.mkForce unset;
+      SLIP_COMPRESSED = lib.mkForce unset;
+      SLIP_SMART = lib.mkForce unset;
+      TR = lib.mkForce unset;
+      UBIFS_FS_ADVANCED_COMPR = lib.mkForce unset;
+      VGA_SWITCHEROO = lib.mkForce unset;
+      VIDEO_V4L1 = lib.mkForce unset;
+      VME = lib.mkForce unset;
     };
   };
 

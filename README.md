@@ -132,18 +132,16 @@ nixos-rebuild boot --print-build-logs
    ```
    make ARCH=x86_64 LLVM=1 allnoconfig
    ```
-2. Run the provided kernel script to interrogate lsmod.
+2. Run localmodconfig and convert its error messages into modules we must have.
    ```
-   perl scripts/kconfig/streamline_config.pl 2>/dev/null \
-     | rg =y\|=m \
-     | sed 's/=y/= lib.mkForce yes;/g' \
-     | sed 's/=m/= lib.mkForce module;/g'
+   make localmodconfig ARCH=x86_64 LLVM=1 2> \
+     >(rg -oP 'CONFIG_[^ ]+' | uniq | sort > must_have)
    ```
    If you do not have `rg` installed, use `grep`.
 3. Convert the output to a kernel patch that represents the base needs of your
    system.
-4. Be sure to set the kernel's `defconfig` argument to `"ARCH=x86_64
-   allnoconfig"` so that you will start with only base NixOS options on top of
+4. Be sure to set the kernel's `defconfig` argument to `"ARCH=x86_64 allnoconfig
+   LLVM=1"` so that you will start with only base NixOS options on top of
    nothing.
 5. Fix up dependent options 
 
@@ -152,6 +150,9 @@ However, because the kernel is so small, it is much faster to rebuild and the
 amount of configuration you are handling is much, much less.  **The NixOS options
 do turn on way too much, and we might need to bring in extra patches to tone the
 driver spam down.**
+
+These systems will not have any cool features turned on.  Cool features are
+good.  There is more work to be done.
 
 ## Reducing Defconfig (Subtractive Approach)
 
