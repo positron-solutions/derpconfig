@@ -172,7 +172,14 @@ turn off.  There are easily 2k options you will want to get rid of at least.
 - NixOS default kernel [options](https://github.com/NixOS/nixpkgs/blob/master/pkgs/os-specific/linux/kernel/common-config.nix)
 - Generic
   [kernel](https://github.com/NixOS/nixpkgs/blob/master/pkgs/os-specific/linux/kernel/generic.nix)
-- How NixOS [generates](https://github.com/NixOS/nixpkgs/blob/master/pkgs/os-specific/linux/kernel/generate-config.pl) the config  
+- How NixOS
+  [generates](https://github.com/NixOS/nixpkgs/blob/master/pkgs/os-specific/linux/kernel/generate-config.pl)
+  the config
+- [structured
+  configuration](https://github.com/NixOS/nixpkgs/blob/master/lib/kernel.nix)
+  options
+  
+### Certain Infamous Drivers
 - Nvidia [drivers](https://github.com/NixOS/nixpkgs/blob/master/pkgs/os-specific/linux/nvidia-x11/generic.nix)
 - Nvidia open source
   [module](https://github.com/NixOS/nixpkgs/blob/master/pkgs/os-specific/linux/nvidia-x11/open.nix)
