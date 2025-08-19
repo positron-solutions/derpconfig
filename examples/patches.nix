@@ -1561,6 +1561,11 @@ rec {
     name = "localmode-unused-sensors";
     patch = null;
     extraStructuredConfig = with lib.kernel; {
+      SENSORS_APDS990X = lib.mkForce no;
+      SENSORS_BH1770 = lib.mkForce no;
+      SENSORS_HDAPS = lib.mkForce no;
+      SENSORS_LIS3_I2C = lib.mkForce no;
+      SENSORS_TSL2550 = lib.mkForce no;
       SENSORS_ABITUGURU = lib.mkForce no;
       SENSORS_ABITUGURU3 = lib.mkForce no;
       SENSORS_AD7314 = lib.mkForce no;
