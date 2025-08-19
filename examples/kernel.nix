@@ -78,8 +78,10 @@ in {
     openSha256 = "sha256-xEPJ9nskN1kISnSbfBigVaO6Mw03wyHebqQOQmUg/eQ=";
     settingsSha256 = "sha256-ll7HD7dVPHKUyp5+zvLeNqAb6hCpxfwuSyi+SAXapoQ=";
     persistencedSha256 = "sha256-bs3bUi8LgBu05uTzpn2ugcNYgR5rzWEPaTlgm0TIpHY=";
-  # });
   }).overrideAttrs (old: {
+    # TODO if there is a way to somehow override this more deeply so that it may
+    # occur within an overlay, let be known by whoever reads this and understands
+    # this issue.
     passthru = old.passthru // {
       open = old.passthru.open.overrideAttrs (o: {
         makeFlags = (o.makeFlags or []) ++ [
@@ -91,6 +93,15 @@ in {
     };
   });
 
+  # It is a great wonder why this would be necessary.  We have
+  # derived our nvidia from the kernelPackages, and so our
+  # extension of passthru with an augmented makeFlags should..
+  # just work.  For whatever reason, instead the nvidia module
+  # is not installed with other kernel modules unless we
+  # explicitly add the package back in.
+  # https://github.com/NixOS/nixpkgs/blob/master/pkgs/os-specific/linux/nvidia-x11/open.nix#L29-L40
+  boot.extraModulePackages = [ config.hardware.nvidia.package ];
+  
   # .:: Tiny boot partion options included below
   #
   # When setting initrd options this way, the correct ones to boot
