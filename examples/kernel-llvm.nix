@@ -1,4 +1,4 @@
-{ config, pkgs, pkgsUnstable, lib, ...}:
+{ config, pkgs, lib, ...}:
 
 let 
   # Stdenv with a few more LLVM tools available
@@ -12,14 +12,7 @@ let
     linuxPackages_latest = prev.linuxPackages_latest.extend (kfinal: kprev: {
       kernel = (kprev.kernel.override {
         modDirVersion = "6.16.0-Clang";
-        # modDirVersion = "6.16.0-GCC";
         extraMakeFlags = [
-          # Gcc flags.
-          # "KCFLAGS+=-O3"
-          # "KCFLAGS+=-march=znver2"
-          # "KCLAGS+=-mtune=znver2"
-
-          # Clang/llvm flags
           "KCFLAGS+=-O3"
           "KCFLAGS+=-mtune=znver2"
           "KCFLAGS+=-march=znver2"
@@ -49,9 +42,6 @@ let
 
         # Be sure to always use defaults compatible with the intended host
         defconfig = "defconfig LLVM=1 ARCH=x86_64";
-        
-        # GCC
-        # defconfig = "defconfig ARCH=x86_64";
       });
     });
   });
@@ -61,15 +51,11 @@ in {
   # subtracting from defconfig
   boot.kernelPatches = (import ./patches.nix {inherit lib;}).subtract;
 
-  # Just use whatever latest Kernel is out?
-  # boot.kernelPackages = nixpkgs-unstable.linuxPackages_latest;
-  # boot.kernelPackages = pkgs.linuxPackages_latest;
-  # boot.kernelPackages = pkgs.linuxPackages_6_5;
-
-
   nixpkgs.overlays = [ kernelOverlay ];
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
+  # This override could be a lot simpler with some upstream changes and the
+  # manual inclusion of the kernel module farther below would be a lot simpler.
   hardware.nvidia.package = (config.boot.kernelPackages.nvidiaPackages.mkDriver {
     version = "580.76.05";
 
@@ -101,32 +87,4 @@ in {
   # explicitly add the package back in.
   # https://github.com/NixOS/nixpkgs/blob/master/pkgs/os-specific/linux/nvidia-x11/open.nix#L29-L40
   boot.extraModulePackages = [ config.hardware.nvidia.package ];
-  
-  # .:: Tiny boot partion options included below
-  #
-  # When setting initrd options this way, the correct ones to boot
-  # must be included.  Result is about 22MB for one kernel and initrd.
-  # which makes it easy to fit on my anemically chosen boot partition.
-  # 
-  # Note, 19 is the highest, but was selected by these settings
-  boot.initrd.compressorArgs = ["-22" "-T0" "--long" "--ultra"];
-  boot.loader.systemd-boot.configurationLimit = 1;
-  boot.initrd.includeDefaultModules = false;
-
-  boot.initrd.luks.cryptoModules = [
-    "aes"
-    "xts"
-    "sha256_generic"
-  ];
-
-  boot.initrd.availableKernelModules = lib.mkForce [
-    "aesni_intel"    # Hardware AES acceleration (Intel) — on AMD, kernel uses analogous driver
-    "cryptd"         # Crypto processing helper
-    "dm_mod"         # Device mapper for LVM
-    "dm_crypt"       # LUKS encryption
-    "ext4"           # Root filesystem driver
-    "nvme"           # NVMe storage
-    "usbhid"         # USB keyboard
-    "xhci_pci"       # USB 3 controller (handles most modern boards)
-  ];
 }
