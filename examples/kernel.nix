@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ...}:
+{ config, pkgs, pkgsUnstable, lib, ...}:
 
 let 
   # Stdenv with a few more LLVM tools available
