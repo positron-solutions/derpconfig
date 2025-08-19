@@ -63,6 +63,7 @@ rec {
     localmod-unused-sensors
     localmod-unused-snd
     localmod-unused-video
+    localmod-unused-wifi
 
     # Cleaning up dependent settings.  These can change depending on changes to
     # other patches.  It is annoying to keep them in sync, and it is a good idea
@@ -2335,6 +2336,31 @@ rec {
       VIDEO_MSP3400 = module;
       VIDEO_SAA711X = module;
       VIDEO_WM8775 = module;
+    };
+  };
+
+  localmod-unused-wifi = {
+    name = "localmod-unused-wifi";
+    patch = null;
+    extraStructuredConfig = with lib.kernel {
+      WLAN_VENDOR_ADMTEK = yes;
+      WLAN_VENDOR_ATH = yes;
+      WLAN_VENDOR_ATMEL = yes;
+      WLAN_VENDOR_BROADCOM = yes;
+      WLAN_VENDOR_INTEL = yes;
+      WLAN_VENDOR_INTERSIL = yes;
+      WLAN_VENDOR_MARVELL = yes;
+      WLAN_VENDOR_MEDIATEK = yes;
+      WLAN_VENDOR_MICROCHIP = yes;
+      WLAN_VENDOR_PURELIFI = yes;
+      WLAN_VENDOR_QUANTENNA = yes;
+      WLAN_VENDOR_RALINK = yes;
+      WLAN_VENDOR_REALTEK = yes;
+      WLAN_VENDOR_RSI = yes;
+      WLAN_VENDOR_SILABS = yes;
+      WLAN_VENDOR_ST = yes;
+      WLAN_VENDOR_TI = yes;
+      WLAN_VENDOR_ZYDAS = yes;
     };
   };
 }
