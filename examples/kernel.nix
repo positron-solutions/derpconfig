@@ -8,44 +8,52 @@ let
       pkgs.lld
     ];
 
-  kernelPackages = pkgs.linuxPackagesFor
-    (pkgs.linuxKernel.kernels.linux_latest.override {
-    extraMakeFlags = [
-      # Gcc flags.
-      # "KCFLAGS+=-O3"
-      # "KCFLAGS+=-march=znver2"
-      # "KCFLAGS+=-mtune=znver2"
+  kernelOverlay = (final: prev: {
+    linuxPackages_latest = prev.linuxPackages_latest.extend (kfinal: kprev: {
+      kernel = (kprev.kernel.override {
+        modDirVersion = "6.16.0-Clang";
+        # modDirVersion = "6.16.0-GCC";
+        extraMakeFlags = [
+          # Gcc flags.
+          # "KCFLAGS+=-O3"
+          # "KCFLAGS+=-march=znver2"
+          # "KCLAGS+=-mtune=znver2"
 
-      # Clang/llvm flags
-      "KCFLAGS+=-O3"
-      "KCFLAGS+=-mtune=znver2"
-      "KCFLAGS+=-march=znver2"
-      "KCFLAGS+=-Wno-unused-command-line-argument"
-      "CC=${pkgs.llvmPackages.clang-unwrapped}/bin/clang"
-      "AR=${pkgs.llvm}/bin/llvm-ar"
-      "NM=${pkgs.llvm}/bin/llvm-nm"
-      "LD=${pkgs.lld}/bin/ld.lld"
-      "LLVM=1"
+          # Clang/llvm flags
+          "KCFLAGS+=-O3"
+          "KCFLAGS+=-mtune=znver2"
+          "KCFLAGS+=-march=znver2"
+          "KCFLAGS+=-Wno-unused-command-line-argument"
+          "CC=${pkgs.llvmPackages.clang-unwrapped}/bin/clang"
+          "AR=${pkgs.llvm}/bin/llvm-ar"
+          "NM=${pkgs.llvm}/bin/llvm-nm"
+          "LD=${pkgs.lld}/bin/ld.lld"
+          "LLVM=1"
 
-      # For debugging builds.  Higher numbers available.
-      # "KCFLAGS+=V=1"
-      # "KCFLAGS+=W=1"
-    ];
+          # For debugging builds.  Higher numbers available.
+          # "KCFLAGS+=V=1"
+          # "KCFLAGS+=W=1"
+        ];
 
-    stdenv = llvmKernelStdenv;
+        stdenv = llvmKernelStdenv;
 
-    # Config generation failing usually corresponds to your config begin edited
-    # in the output due to the incompatible options and therefore also failing.
-    # ignoreConfigErrors = true;
-   
-    # Start with an all-no config.  It is slightly easiler to pull together
-    # enough options to get this running than to whittle down the defaults.  
-    # However, it is still a lot and you may miss some that are more important
-    # than what you gain by starting from a clean slate.  
-    # defconfig = "allnoconfig LLVM=1 ARCH=x86_64";
+        # Config generation failing usually corresponds to your config begin edited
+        # in the output due to the incompatible options and therefore also failing.
+        # ignoreConfigErrors = true;
+       
+        # Start with an all-no config.  It is slightly easiler to pull together
+        # enough options to get this running than to whittle down the defaults.  
+        # However, it is still a lot and you may miss some that are more important
+        # than what you gain by starting from a clean slate.  
+        # defconfig = "allnoconfig LLVM=1 ARCH=x86_64";
 
-    # Be sure to always use defaults compatible with the intended host
-    defconfig = "defconfig LLVM=1 ARCH=x86_64";
+        # Be sure to always use defaults compatible with the intended host
+        defconfig = "defconfig LLVM=1 ARCH=x86_64";
+        
+        # GCC
+        # defconfig = "defconfig ARCH=x86_64";
+      });
+    });
   });
 in {
   # Customize the patch set in use for either adding to a allnoconfig or
@@ -56,10 +64,11 @@ in {
   # boot.kernelPackages = nixpkgs-unstable.linuxPackages_latest;
   # boot.kernelPackages = pkgs.linuxPackages_latest;
   # boot.kernelPackages = pkgs.linuxPackages_6_5;
-  # boot.kernelPackages = pkgs.linuxPackages_latest;
 
-  # Nah, build kernels from source!
-  boot.kernelPackages = kernelPackages;
+
+  nixpkgs.overlays = [ kernelOverlay ];
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+
   hardware.nvidia.package = (config.boot.kernelPackages.nvidiaPackages.mkDriver {
     version = "580.76.05";
 
