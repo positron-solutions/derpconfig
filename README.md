@@ -14,16 +14,27 @@ kernels.
 | Stock kernel                                 | ~2200 MB/s                     |
 | Tuned (clang LTO, CPU tuned, no mitigations) | ~3500 MB/s                     |
 
-Tested with `crytosetup benchmark`. Other critical OS behaviors like zramswap
-can really benefit and give applications more room to breathe.  The target
-application, building containers with Rust and Nix, is still under
-investigation, but early indications are reduction in a well-known process from
-0.27s to 0.2s without compiling that specific program specially (yet).
+Some core kernel tasks are a lot faster with some tuning.  Tested with
+`crytosetup benchmark`. 
 
-**Workflows** and **ease of use** were also under study.  Some pain points
-within the NixOS nixpkgs modules were identified.  Work here builds on top of
-`structuredExtraConfig` rather than using custom configs that won't react to the
-NixOS module system.
+**Workflows** and **ease of use** are also under study.  Some pain points within
+the NixOS nixpkgs modules were identified.  Work here builds on top of
+`structuredExtraConfig` rather than using custom .config files that won't react
+to the NixOS module system.
+
+#### Caveats
+
+ℹ️ The kernel is only a large fraction of work when your system is
+thrashing, booting, or programs are starting and doing tons of syscalls.
+Latency sensitive tasks likely benefit from **scheduling** more than straight
+line kernel speed.  Tasks that thrash will typically bottleneck on disk
+swapping, and tools like zram-swap will have a bigger impact (but zram-swap
+itself will benefit probably!)
+
+Building a Rust application from `cargo clean` saw **no measurable change**.
+However, the build cache-hot restart **went from 0.27s to 0.20s**.  Starting a
+process that has to verify that many files are unchnaged is almost entirely OS
+bound.
 
 ### Also Covered
 
