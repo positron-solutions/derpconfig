@@ -55,9 +55,10 @@ let
       });
     });
   });
+
 in {
   # Customize the patch set in use for either adding to a allnoconfig or
-  # subtracing from defconfig
+  # subtracting from defconfig
   boot.kernelPatches = (import ./patches.nix {inherit lib;}).subtract;
 
   # Just use whatever latest Kernel is out?

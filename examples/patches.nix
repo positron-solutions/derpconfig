@@ -25,7 +25,7 @@ rec {
     localmod-unused-video
     no-old
 
-    # Cleaning up sympathetic settings
+    # Cleaning up dependent settings
     peripherals-fallout
   ];
 
