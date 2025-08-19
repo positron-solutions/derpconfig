@@ -11,7 +11,7 @@ kernels.
 
 | Configuration                                | AES-XTS 256 Performance (MB/s) |
 |----------------------------------------------|--------------------------------|
-| Stock kernel                                 | ~1800 MB/s                     |
+| Stock kernel                                 | ~2200 MB/s                     |
 | Tuned (clang LTO, CPU tuned, no mitigations) | ~3500 MB/s                     |
 
 Tested with `crytosetup benchmark`. Other critical OS behaviors like zramswap
