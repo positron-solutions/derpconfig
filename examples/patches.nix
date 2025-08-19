@@ -11,7 +11,6 @@ rec {
 
     streamlined
 
-    llvm-lto
     small
     zstd-zram
 
@@ -37,7 +36,6 @@ rec {
 
     no-sec # be aware before you choose
 
-    llvm-lto
     small
     zstd-zram
 
@@ -116,19 +114,6 @@ rec {
       MQ_IOSCHED_KYBER = lib.mkDefault no;
       MQ_IOSCHED_DEADLINE = lib.mkDefault no;
       IOSCHED_BFQ = lib.mkDefault yes;
-    };
-  };
-
-
-  llvm-lto = {
-    name = "llvm-lto";
-    patch = null;
-    extraStructuredConfig = with lib.kernel; {
-      # Clang options require a lot of extra config     
-      CC_IS_CLANG = lib.mkForce yes;
-      LTO = lib.mkForce yes;
-      LTO_CLANG = lib.mkForce yes;
-      LTO_CLANG_THIN = lib.mkForce yes;
     };
   };
 

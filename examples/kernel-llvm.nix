@@ -42,6 +42,14 @@ let
 
         # Be sure to always use defaults compatible with the intended host
         defconfig = "defconfig LLVM=1 ARCH=x86_64";
+
+        structuredExtraConfig = {
+          # Clang options require a lot of extra config
+          CC_IS_CLANG = lib.mkForce yes;
+          LTO = lib.mkForce yes;
+          LTO_CLANG = lib.mkForce yes;
+          LTO_CLANG_THIN = lib.mkForce yes;
+        };
       });
     });
   });
