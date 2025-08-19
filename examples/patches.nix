@@ -1,52 +1,55 @@
 {lib, ...}:
 
+# ⚠️ This module is pretty dirty right now! It contains a lot of lies and some
+# truth you can get ideas from.
+
+# Fallout patches are those that were only used to unset options that became
+# unused or conflicted with the calculated sets
+
+# There is some attempt to make patches either addition or subtraction since
+# this helps merging.
+
 rec {
-  # This set is a result of running a streamline while running a fat kernel,
-  # letting the NixOS base config be added in, and then subtracting some of the
-  # NixOS cruft.  It is intended for use with the allnoconfig setting
-  # ⚠️ NOT YET WORKING
-  add-to-allno-config = [
+  # separating out choices that every kernel should have
+  base = [
     user-friendly
     custom
-
-    streamlined
-
     small
-    zstd-zram
+    zstd-all
+    no-sec
+    no-old
+    no-rare
+    no-debug
+    no-fun
+    no-intel
+    no-unused-crypto
+
+    base-fallout
+  ];
+
+  # This set is for the additive workflow, building up from allnoconfig
+  # ⚠️ NOT YET WORKING
+  addition = [
+    streamlined
 
     peripherals-usb # stub for common usb
     peripherals-misc # stub for common other
     peripherals-video # stub for external monitors
 
-    # Subtract your unused from NixOS options
+    # Subtract unused options added by NixOS
     localmod-unused-net-vendors
     localmod-unused-snd
     localmod-unused-video
-    no-old
 
-    # Cleaning up dependent settings
-    peripherals-fallout
+    # Cleaning up dependent settings.  These can change depending on changes to
+    # other patches.  It is annoying to keep them in sync, and it is a good idea
+    # to keep them together.
+    addition-fallout
   ];
 
   # Subtraction strategy, starting from defconfig and NixOS defaults, reduced
   # with localmodconfig.
   subtract = [
-    user-friendly
-    custom
-
-    no-sec # be aware before you choose
-
-    small
-    zstd-zram
-
-    # These could be helpful to work on
-    no-old
-    no-rare
-
-    no-debug
-    no-fun
-    no-intel
-    no-unused-crypto
 
     localmod-unused-drm
     localmod-unused-gpio
@@ -61,9 +64,10 @@ rec {
     localmod-unused-snd
     localmod-unused-video
 
-    # Any mass structured settings will cause a bunch of unused
-    # settings to appear
-    localmod-fallout
+    # Cleaning up dependent settings.  These can change depending on changes to
+    # other patches.  It is annoying to keep them in sync, and it is a good idea
+    # to keep them together.
+    subtract-fallout
   ];
 
   # It must be noted that kernel configuration, with a tree menu for
@@ -85,8 +89,13 @@ rec {
       # even if we suspect a module might be broken, unless
       # we are kernel devs, we generally will take the risk
       # that it works.
-      # CC_NO_UNUSED_ARGS_WARNINGS = yes;
       # WERROR = no;
+
+      # Generally this one will save you from problems because the wrapped clang
+      # compiler generates a lot of warnings... and then fails ;-)
+      # CC_NO_UNUSED_ARGS_WARNINGS = yes;
+
+      # Haven't found a need for this, but could come in handy
       # SECTION_MISMATCH_WARN_ONLY = yes;
     };
   };
@@ -101,7 +110,7 @@ rec {
       # Stricter
       IO_STRICT_DEVMEM = yes;
 
-      KVM = lib.mkForce no;
+
 
       # TODO something else is setting this
       # X86_AMD_FREQ_SENSITIVITY = lib.mkForce yes;
@@ -113,7 +122,6 @@ rec {
  
       MQ_IOSCHED_KYBER = lib.mkDefault no;
       MQ_IOSCHED_DEADLINE = lib.mkDefault no;
-      IOSCHED_BFQ = lib.mkDefault yes;
     };
   };
 
@@ -125,8 +133,16 @@ rec {
     };
   };
 
-  zstd-zram = {
-    name = "zstd-zram";
+  not-vm = {
+    name = "not-vm";
+    patch = null;
+    extraStructuredConfig = with lib.kernel; {
+      KVM = lib.mkForce no;
+    };
+  };
+
+  zstd-all = {
+    name = "zstd-all";
     patch = null;
     extraStructuredConfig = with lib.kernel; {
       ZRAM = lib.mkForce yes;
@@ -142,8 +158,6 @@ rec {
       ZSWAP = yes;
     };
   };
-
-
 
   # This is actually a pretty useful patch that we could expand.
   # Any options that purely disable lots of old stuff should be known.
@@ -284,530 +298,530 @@ rec {
     name = "streamlined";
     patch = null;
     extraStructuredConfig = with lib.kernel; {
-      CONFIG_64BIT= lib.mkForce yes;
-      CONFIG_ADVISE_SYSCALLS= lib.mkForce yes;
-      CONFIG_AIO= lib.mkForce yes;
-      CONFIG_ALLOW_DEV_COREDUMP= lib.mkForce yes;
-      CONFIG_ARCH_CLOCKSOURCE_INIT= lib.mkForce yes;
-      CONFIG_ARCH_CONFIGURES_CPU_MITIGATIONS= lib.mkForce yes;
-      CONFIG_ARCH_CORRECT_STACKTRACE_ON_KRETPROBE= lib.mkForce yes;
-      CONFIG_ARCH_DEFAULT_CRASH_DUMP= lib.mkForce yes;
-      CONFIG_ARCH_DMA_ADDR_T_64BIT= lib.mkForce yes;
-      CONFIG_ARCH_ENABLE_MEMORY_HOTPLUG= lib.mkForce yes;
-      CONFIG_ARCH_ENABLE_SPLIT_PMD_PTLOCK= lib.mkForce yes;
-      CONFIG_ARCH_HAS_ADD_PAGES= lib.mkForce yes;
-      CONFIG_ARCH_HAS_CACHE_LINE_SIZE= lib.mkForce yes;
-      CONFIG_ARCH_HAS_COPY_MC= lib.mkForce yes;
-      CONFIG_ARCH_HAS_CPU_CACHE_INVALIDATE_MEMREGION= lib.mkForce yes;
-      CONFIG_ARCH_HAS_CPU_FINALIZE_INIT= lib.mkForce yes;
-      CONFIG_ARCH_HAS_CPU_RELAX= lib.mkForce yes;
-      CONFIG_ARCH_HAS_CRC32= lib.mkForce yes;
-      CONFIG_ARCH_HAS_CRC64= lib.mkForce yes;
-      CONFIG_ARCH_HAS_CRC_T10DIF= lib.mkForce yes;
-      CONFIG_ARCH_HAS_CURRENT_STACK_POINTER= lib.mkForce yes;
-      CONFIG_ARCH_HAS_DEBUG_VIRTUAL= lib.mkForce yes;
-      CONFIG_ARCH_HAS_DEBUG_VM_PGTABLE= lib.mkForce yes;
-      CONFIG_ARCH_HAS_DEBUG_WX= lib.mkForce yes;
-      CONFIG_ARCH_HAS_DEVMEM_IS_ALLOWED= lib.mkForce yes;
-      CONFIG_ARCH_HAS_ELFCORE_COMPAT= lib.mkForce yes;
-      CONFIG_ARCH_HAS_ELF_RANDOMIZE= lib.mkForce yes;
-      CONFIG_ARCH_HAS_FAST_MULTIPLIER= lib.mkForce yes;
-      CONFIG_ARCH_HAS_FORTIFY_SOURCE= lib.mkForce yes;
-      CONFIG_ARCH_HAS_GCOV_PROFILE_ALL= lib.mkForce yes;
-      CONFIG_ARCH_HAS_GIGANTIC_PAGE= lib.mkForce yes;
-      CONFIG_ARCH_HAS_HW_PTE_YOUNG= lib.mkForce yes;
-      CONFIG_ARCH_HAS_KCOV= lib.mkForce yes;
-      CONFIG_ARCH_HAS_KERNEL_FPU_SUPPORT= lib.mkForce yes;
-      CONFIG_ARCH_HAS_MEMBARRIER_SYNC_CORE= lib.mkForce yes;
-      CONFIG_ARCH_HAS_MEM_ENCRYPT= lib.mkForce yes;
-      CONFIG_ARCH_HAS_NMI_SAFE_THIS_CPU_OPS= lib.mkForce yes;
-      CONFIG_ARCH_HAS_NONLEAF_PMD_YOUNG= lib.mkForce yes;
-      CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE= lib.mkForce yes;
-      CONFIG_ARCH_HAS_PARANOID_L1D_FLUSH= lib.mkForce yes;
-      CONFIG_ARCH_HAS_PMEM_API= lib.mkForce yes;
-      CONFIG_ARCH_HAS_PREEMPT_LAZY= lib.mkForce yes;
-      CONFIG_ARCH_HAS_PTDUMP= lib.mkForce yes;
-      CONFIG_ARCH_HAS_PTE_DEVMAP= lib.mkForce yes;
-      CONFIG_ARCH_HAS_PTE_SPECIAL= lib.mkForce yes;
-      CONFIG_ARCH_HAS_SET_DIRECT_MAP= lib.mkForce yes;
-      CONFIG_ARCH_HAS_SET_MEMORY= lib.mkForce yes;
-      CONFIG_ARCH_HAS_STRICT_KERNEL_RWX= lib.mkForce yes;
-      CONFIG_ARCH_HAS_STRICT_MODULE_RWX= lib.mkForce yes;
-      CONFIG_ARCH_HAS_SYNC_CORE_BEFORE_USERMODE= lib.mkForce yes;
-      CONFIG_ARCH_HAS_SYSCALL_WRAPPER= lib.mkForce yes;
-      CONFIG_ARCH_HAS_UACCESS_FLUSHCACHE= lib.mkForce yes;
-      CONFIG_ARCH_HAS_UBSAN= lib.mkForce yes;
-      CONFIG_ARCH_HAVE_EXTRA_ELF_NOTES= lib.mkForce yes;
-      CONFIG_ARCH_HAVE_NMI_SAFE_CMPXCHG= lib.mkForce yes;
-      CONFIG_ARCH_HIBERNATION_POSSIBLE= lib.mkForce yes;
-      CONFIG_ARCH_MAY_HAVE_PC_FDC= lib.mkForce yes;
-      CONFIG_ARCH_MHP_MEMMAP_ON_MEMORY_ENABLE= lib.mkForce yes;
-      CONFIG_ARCH_MIGHT_HAVE_PC_PARPORT= lib.mkForce yes;
-      CONFIG_ARCH_MIGHT_HAVE_PC_SERIO= lib.mkForce yes;
-      CONFIG_ARCH_SPARSEMEM_DEFAULT= lib.mkForce yes;
-      CONFIG_ARCH_SPARSEMEM_ENABLE= lib.mkForce yes;
-      CONFIG_ARCH_STACKWALK= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_ACPI= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_ATOMIC_RMW= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_AUTOFDO_CLANG= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_CFI_CLANG= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_CRASH_DUMP= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_CRASH_HOTPLUG= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_DEBUG_PAGEALLOC= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_INT128= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_KEXEC= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_KEXEC_BZIMAGE_VERIFY_SIG= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_KEXEC_FILE= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_KEXEC_HANDOVER= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_KEXEC_JUMP= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_KEXEC_PURGATORY= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_KEXEC_SIG= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_KEXEC_SIG_FORCE= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_KMAP_LOCAL_FORCE_MAP= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_LTO_CLANG= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_LTO_CLANG_THIN= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_MSEAL_SYSTEM_MAPPINGS= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_NUMA_BALANCING= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_PAGE_TABLE_CHECK= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_PER_VMA_LOCK= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_PROPELLER_CLANG= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_PT_RECLAIM= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_RT= lib.mkForce yes;
-      CONFIG_ARCH_SUPPORTS_UPROBES= lib.mkForce yes;
-      CONFIG_ARCH_SUSPEND_POSSIBLE= lib.mkForce yes;
-      CONFIG_ARCH_USES_PG_ARCH_2= lib.mkForce yes;
-      CONFIG_ARCH_USE_BUILTIN_BSWAP= lib.mkForce yes;
-      CONFIG_ARCH_USE_CMPXCHG_LOCKREF= lib.mkForce yes;
-      CONFIG_ARCH_USE_MEMTEST= lib.mkForce yes;
-      CONFIG_ARCH_USE_QUEUED_RWLOCKS= lib.mkForce yes;
-      CONFIG_ARCH_USE_QUEUED_SPINLOCKS= lib.mkForce yes;
-      CONFIG_ARCH_USE_SYM_ANNOTATIONS= lib.mkForce yes;
-      CONFIG_ARCH_WANTS_DYNAMIC_TASK_STRUCT= lib.mkForce yes;
-      CONFIG_ARCH_WANTS_NO_INSTR= lib.mkForce yes;
-      CONFIG_ARCH_WANTS_THP_SWAP= lib.mkForce yes;
-      CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH= lib.mkForce yes;
-      CONFIG_ARCH_WANT_DEFAULT_BPF_JIT= lib.mkForce yes;
-      CONFIG_ARCH_WANT_GENERAL_HUGETLB= lib.mkForce yes;
-      CONFIG_ARCH_WANT_HUGETLB_VMEMMAP_PREINIT= lib.mkForce yes;
-      CONFIG_ARCH_WANT_HUGE_PMD_SHARE= lib.mkForce yes;
-      CONFIG_ARCH_WANT_IRQS_OFF_ACTIVATE_MM= lib.mkForce yes;
-      CONFIG_ARCH_WANT_LD_ORPHAN_WARN= lib.mkForce yes;
-      CONFIG_ARCH_WANT_OPTIMIZE_DAX_VMEMMAP= lib.mkForce yes;
-      CONFIG_ARCH_WANT_OPTIMIZE_HUGETLB_VMEMMAP= lib.mkForce yes;
-      CONFIG_AS_AVX512= lib.mkForce yes;
-      CONFIG_AS_GFNI= lib.mkForce yes;
-      CONFIG_AS_HAS_NON_CONST_ULEB128= lib.mkForce yes;
-      CONFIG_AS_IS_LLVM= lib.mkForce yes;
-      CONFIG_AS_VAES= lib.mkForce yes;
-      CONFIG_AS_VPCLMULQDQ= lib.mkForce yes;
-      CONFIG_AS_WRUSS= lib.mkForce yes;
-      CONFIG_AUDIT_ARCH= lib.mkForce yes;
-      CONFIG_BCMA_POSSIBLE= lib.mkForce yes;
-      CONFIG_BITREVERSE= lib.mkForce yes;
-      CONFIG_BLOCK= lib.mkForce yes;
-      CONFIG_BROADCAST_TLB_FLUSH= lib.mkForce yes;
-      CONFIG_BROKEN_ON_SMP= lib.mkForce yes;
-      CONFIG_BUG= lib.mkForce yes;
-      CONFIG_BUILDTIME_TABLE_SORT= lib.mkForce yes;
-      CONFIG_CACHESTAT_SYSCALL= lib.mkForce yes;
-      CONFIG_CC_CAN_LINK= lib.mkForce yes;
-      CONFIG_CC_HAS_ASM_GOTO_OUTPUT= lib.mkForce yes;
-      CONFIG_CC_HAS_ASM_GOTO_TIED_OUTPUT= lib.mkForce yes;
-      CONFIG_CC_HAS_ASM_INLINE= lib.mkForce yes;
-      CONFIG_CC_HAS_AUTO_VAR_INIT_PATTERN= lib.mkForce yes;
-      CONFIG_CC_HAS_AUTO_VAR_INIT_ZERO= lib.mkForce yes;
-      CONFIG_CC_HAS_AUTO_VAR_INIT_ZERO_BARE= lib.mkForce yes;
-      CONFIG_CC_HAS_COUNTED_BY= lib.mkForce yes;
-      CONFIG_CC_HAS_ENTRY_PADDING= lib.mkForce yes;
-      CONFIG_CC_HAS_IBT= lib.mkForce yes;
-      CONFIG_CC_HAS_INT128= lib.mkForce yes;
-      CONFIG_CC_HAS_KASAN_GENERIC= lib.mkForce yes;
-      CONFIG_CC_HAS_KASAN_SW_TAGS= lib.mkForce yes;
-      CONFIG_CC_HAS_MARCH_NATIVE= lib.mkForce yes;
-      CONFIG_CC_HAS_NAMED_AS_FIXED_SANITIZERS= lib.mkForce yes;
-      CONFIG_CC_HAS_NO_PROFILE_FN_ATTR= lib.mkForce yes;
-      CONFIG_CC_HAS_RANDSTRUCT= lib.mkForce yes;
-      CONFIG_CC_HAS_RETURN_THUNK= lib.mkForce yes;
-      CONFIG_CC_HAS_SANE_FUNCTION_ALIGNMENT= lib.mkForce yes;
-      CONFIG_CC_HAS_SLS= lib.mkForce yes;
-      CONFIG_CC_HAS_WORKING_NOSANITIZE_ADDRESS= lib.mkForce yes;
-      CONFIG_CC_HAS_ZERO_CALL_USED_REGS= lib.mkForce yes;
-      CONFIG_CC_IS_CLANG= lib.mkForce yes;
-      CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE= lib.mkForce yes;
-      CONFIG_CLKBLD_I8253= lib.mkForce yes;
-      CONFIG_CLKEVT_I8253= lib.mkForce yes;
-      CONFIG_CLOCKSOURCE_WATCHDOG= lib.mkForce yes;
-      CONFIG_CONSOLE_TRANSLATIONS= lib.mkForce yes;
-      CONFIG_COREDUMP= lib.mkForce yes;
-      CONFIG_CPU_SUP_AMD= lib.mkForce yes;
-      CONFIG_CPU_SUP_CENTAUR= lib.mkForce yes;
-      CONFIG_CPU_SUP_HYGON= lib.mkForce yes;
-      CONFIG_CPU_SUP_INTEL= lib.mkForce yes;
-      CONFIG_CPU_SUP_ZHAOXIN= lib.mkForce yes;
-      CONFIG_CRC32= lib.mkForce yes;
-      CONFIG_CRC32_ARCH= lib.mkForce yes;
-      CONFIG_CRC_OPTIMIZATIONS= lib.mkForce yes;
-      CONFIG_CRYPTO_ARCH_HAVE_LIB_SHA256= lib.mkForce yes;
-      CONFIG_CRYPTO_ARCH_HAVE_LIB_SHA256_SIMD= lib.mkForce yes;
-      CONFIG_CRYPTO_LIB_BLAKE2S_GENERIC= lib.mkForce yes;
-      CONFIG_CRYPTO_LIB_SHA256= lib.mkForce yes;
-      CONFIG_CRYPTO_LIB_SHA256_GENERIC= lib.mkForce yes;
-      CONFIG_CRYPTO_SHA256_X86_64= lib.mkForce yes;
-      CONFIG_DCACHE_WORD_ACCESS= lib.mkForce yes;
-      CONFIG_DEBUG_BUGVERBOSE= lib.mkForce yes;
-      CONFIG_DEBUG_MEMORY_INIT= lib.mkForce yes;
-      CONFIG_DEFAULT_SECURITY_DAC= lib.mkForce yes;
-      CONFIG_DMA_NEED_SYNC= lib.mkForce yes;
-      CONFIG_DMI= lib.mkForce yes;
-      CONFIG_DMI_SCAN_MACHINE_NON_EFI_FALLBACK= lib.mkForce yes;
-      CONFIG_DUMMY_CONSOLE= lib.mkForce yes;
-      CONFIG_DYNAMIC_SIGFRAME= lib.mkForce yes;
-      CONFIG_EARLY_PRINTK= lib.mkForce yes;
-      CONFIG_EDAC_ATOMIC_SCRUB= lib.mkForce yes;
-      CONFIG_EDAC_SUPPORT= lib.mkForce yes;
-      CONFIG_EFI_PARTITION= lib.mkForce yes;
-      CONFIG_ELF_CORE= lib.mkForce yes;
-      CONFIG_EPOLL= lib.mkForce yes;
-      CONFIG_EVENTFD= lib.mkForce yes;
-      CONFIG_EXCLUSIVE_SYSTEM_RAM= lib.mkForce yes;
-      CONFIG_EXPORTFS= lib.mkForce yes;
-      CONFIG_FHANDLE= lib.mkForce yes;
-      CONFIG_FILE_LOCKING= lib.mkForce yes;
-      CONFIG_FIRMWARE_MEMMAP= lib.mkForce yes;
-      CONFIG_FIX_EARLYCON_MEM= lib.mkForce yes;
-      CONFIG_FORCE_NR_CPUS= lib.mkForce yes;
-      CONFIG_FS_IOMAP= lib.mkForce yes;
-      CONFIG_FUNCTION_ALIGNMENT_16B= lib.mkForce yes;
-      CONFIG_FUNCTION_ALIGNMENT_4B= lib.mkForce yes;
-      CONFIG_FUTEX= lib.mkForce yes;
-      CONFIG_FUTEX_PI= lib.mkForce yes;
-      CONFIG_FW_LOADER= lib.mkForce yes;
-      CONFIG_GCC10_NO_ARRAY_BOUNDS= lib.mkForce yes;
-      CONFIG_GCC_NO_STRINGOP_OVERFLOW= lib.mkForce yes;
-      CONFIG_GENERIC_BUG= lib.mkForce yes;
-      CONFIG_GENERIC_BUG_RELATIVE_POINTERS= lib.mkForce yes;
-      CONFIG_GENERIC_CALIBRATE_DELAY= lib.mkForce yes;
-      CONFIG_GENERIC_CLOCKEVENTS= lib.mkForce yes;
-      CONFIG_GENERIC_CLOCKEVENTS_BROADCAST= lib.mkForce yes;
-      CONFIG_GENERIC_CLOCKEVENTS_BROADCAST_IDLE= lib.mkForce yes;
-      CONFIG_GENERIC_CLOCKEVENTS_MIN_ADJUST= lib.mkForce yes;
-      CONFIG_GENERIC_CMOS_UPDATE= lib.mkForce yes;
-      CONFIG_GENERIC_CPU_AUTOPROBE= lib.mkForce yes;
-      CONFIG_GENERIC_CPU_DEVICES= lib.mkForce yes;
-      CONFIG_GENERIC_CPU_VULNERABILITIES= lib.mkForce yes;
-      CONFIG_GENERIC_EARLY_IOREMAP= lib.mkForce yes;
-      CONFIG_GENERIC_ENTRY= lib.mkForce yes;
-      CONFIG_GENERIC_GETTIMEOFDAY= lib.mkForce yes;
-      CONFIG_GENERIC_IOMAP= lib.mkForce yes;
-      CONFIG_GENERIC_IRQ_MATRIX_ALLOCATOR= lib.mkForce yes;
-      CONFIG_GENERIC_IRQ_PROBE= lib.mkForce yes;
-      CONFIG_GENERIC_IRQ_RESERVATION_MODE= lib.mkForce yes;
-      CONFIG_GENERIC_IRQ_SHOW= lib.mkForce yes;
-      CONFIG_GENERIC_ISA_DMA= lib.mkForce yes;
-      CONFIG_GENERIC_PCI_IOMAP= lib.mkForce yes;
-      CONFIG_GENERIC_SMP_IDLE_THREAD= lib.mkForce yes;
-      CONFIG_GENERIC_STRNCPY_FROM_USER= lib.mkForce yes;
-      CONFIG_GENERIC_STRNLEN_USER= lib.mkForce yes;
-      CONFIG_GENERIC_TIME_VSYSCALL= lib.mkForce yes;
-      CONFIG_GENERIC_VDSO_DATA_STORE= lib.mkForce yes;
-      CONFIG_GENERIC_VDSO_OVERFLOW_PROTECT= lib.mkForce yes;
-      CONFIG_GENERIC_VDSO_TIME_NS= lib.mkForce yes;
-      CONFIG_HARDIRQS_SW_RESEND= lib.mkForce yes;
-      CONFIG_HARDLOCKUP_CHECK_TIMESTAMP= lib.mkForce yes;
-      CONFIG_HAS_DMA= lib.mkForce yes;
-      CONFIG_HAS_IOMEM= lib.mkForce yes;
-      CONFIG_HAS_IOPORT= lib.mkForce yes;
-      CONFIG_HAS_IOPORT_MAP= lib.mkForce yes;
-      CONFIG_HAS_LTO_CLANG= lib.mkForce yes;
-      CONFIG_HAVE_ALIGNED_STRUCT_PAGE= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_AUDITSYSCALL= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_HUGE_VMALLOC= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_HUGE_VMAP= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_JUMP_LABEL= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_JUMP_LABEL_RELATIVE= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_KASAN= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_KASAN_VMALLOC= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_KCSAN= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_KFENCE= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_KGDB= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_KMSAN= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_MMAP_RND_BITS= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_PREL32_RELOCATIONS= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_RANDOMIZE_KSTACK_OFFSET= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_SECCOMP= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_SECCOMP_FILTER= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_SOFT_DIRTY= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_STACKLEAK= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_THREAD_STRUCT_WHITELIST= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_TRACEHOOK= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_VMAP_STACK= lib.mkForce yes;
-      CONFIG_HAVE_ARCH_WITHIN_STACK_FRAMES= lib.mkForce yes;
-      CONFIG_HAVE_ASM_MODVERSIONS= lib.mkForce yes;
-      CONFIG_HAVE_BUILDTIME_MCOUNT_SORT= lib.mkForce yes;
-      CONFIG_HAVE_CFI_ICALL_NORMALIZE_INTEGERS_CLANG= lib.mkForce yes;
-      CONFIG_HAVE_CFI_ICALL_NORMALIZE_INTEGERS_RUSTC= lib.mkForce yes;
-      CONFIG_HAVE_CMPXCHG_DOUBLE= lib.mkForce yes;
-      CONFIG_HAVE_CMPXCHG_LOCAL= lib.mkForce yes;
-      CONFIG_HAVE_CONTEXT_TRACKING_USER= lib.mkForce yes;
-      CONFIG_HAVE_CONTEXT_TRACKING_USER_OFFSTACK= lib.mkForce yes;
-      CONFIG_HAVE_C_RECORDMCOUNT= lib.mkForce yes;
-      CONFIG_HAVE_DEBUG_KMEMLEAK= lib.mkForce yes;
-      CONFIG_HAVE_DMA_CONTIGUOUS= lib.mkForce yes;
-      CONFIG_HAVE_DYNAMIC_FTRACE= lib.mkForce yes;
-      CONFIG_HAVE_DYNAMIC_FTRACE_NO_PATCHABLE= lib.mkForce yes;
-      CONFIG_HAVE_DYNAMIC_FTRACE_WITH_ARGS= lib.mkForce yes;
-      CONFIG_HAVE_DYNAMIC_FTRACE_WITH_DIRECT_CALLS= lib.mkForce yes;
-      CONFIG_HAVE_DYNAMIC_FTRACE_WITH_REGS= lib.mkForce yes;
-      CONFIG_HAVE_EBPF_JIT= lib.mkForce yes;
-      CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS= lib.mkForce yes;
-      CONFIG_HAVE_EXIT_THREAD= lib.mkForce yes;
-      CONFIG_HAVE_FENTRY= lib.mkForce yes;
-      CONFIG_HAVE_FTRACE_MCOUNT_RECORD= lib.mkForce yes;
-      CONFIG_HAVE_FTRACE_REGS_HAVING_PT_REGS= lib.mkForce yes;
-      CONFIG_HAVE_FUNCTION_ARG_ACCESS_API= lib.mkForce yes;
-      CONFIG_HAVE_FUNCTION_ERROR_INJECTION= lib.mkForce yes;
-      CONFIG_HAVE_FUNCTION_TRACER= lib.mkForce yes;
-      CONFIG_HAVE_GCC_PLUGINS= lib.mkForce yes;
-      CONFIG_HAVE_GENERIC_VDSO= lib.mkForce yes;
-      CONFIG_HAVE_GUP_FAST= lib.mkForce yes;
-      CONFIG_HAVE_HARDLOCKUP_DETECTOR_PERF= lib.mkForce yes;
-      CONFIG_HAVE_HW_BREAKPOINT= lib.mkForce yes;
-      CONFIG_HAVE_IOREMAP_PROT= lib.mkForce yes;
-      CONFIG_HAVE_IRQ_EXIT_ON_IRQ_STACK= lib.mkForce yes;
-      CONFIG_HAVE_IRQ_TIME_ACCOUNTING= lib.mkForce yes;
-      CONFIG_HAVE_JUMP_LABEL_HACK= lib.mkForce yes;
-      CONFIG_HAVE_KCSAN_COMPILER= lib.mkForce yes;
-      CONFIG_HAVE_KERNEL_BZIP2= lib.mkForce yes;
-      CONFIG_HAVE_KERNEL_GZIP= lib.mkForce yes;
-      CONFIG_HAVE_KERNEL_LZ4= lib.mkForce yes;
-      CONFIG_HAVE_KERNEL_LZMA= lib.mkForce yes;
-      CONFIG_HAVE_KERNEL_LZO= lib.mkForce yes;
-      CONFIG_HAVE_KERNEL_XZ= lib.mkForce yes;
-      CONFIG_HAVE_KERNEL_ZSTD= lib.mkForce yes;
-      CONFIG_HAVE_KMSAN_COMPILER= lib.mkForce yes;
-      CONFIG_HAVE_KPROBES= lib.mkForce yes;
-      CONFIG_HAVE_KPROBES_ON_FTRACE= lib.mkForce yes;
-      CONFIG_HAVE_KRETPROBES= lib.mkForce yes;
-      CONFIG_HAVE_LIVEPATCH= lib.mkForce yes;
-      CONFIG_HAVE_MIXED_BREAKPOINTS_REGS= lib.mkForce yes;
-      CONFIG_HAVE_MMIOTRACE_SUPPORT= lib.mkForce yes;
-      CONFIG_HAVE_MOD_ARCH_SPECIFIC= lib.mkForce yes;
-      CONFIG_HAVE_MOVE_PMD= lib.mkForce yes;
-      CONFIG_HAVE_MOVE_PUD= lib.mkForce yes;
-      CONFIG_HAVE_NMI= lib.mkForce yes;
-      CONFIG_HAVE_NOINSTR_HACK= lib.mkForce yes;
-      CONFIG_HAVE_NOINSTR_VALIDATION= lib.mkForce yes;
-      CONFIG_HAVE_OBJTOOL= lib.mkForce yes;
-      CONFIG_HAVE_OBJTOOL_MCOUNT= lib.mkForce yes;
-      CONFIG_HAVE_OBJTOOL_NOP_MCOUNT= lib.mkForce yes;
-      CONFIG_HAVE_OPTPROBES= lib.mkForce yes;
-      CONFIG_HAVE_PAGE_SIZE_4KB= lib.mkForce yes;
-      CONFIG_HAVE_PCI= lib.mkForce yes;
-      CONFIG_HAVE_PCSPKR_PLATFORM= lib.mkForce yes;
-      CONFIG_HAVE_PERF_EVENTS= lib.mkForce yes;
-      CONFIG_HAVE_PERF_EVENTS_NMI= lib.mkForce yes;
-      CONFIG_HAVE_PERF_REGS= lib.mkForce yes;
-      CONFIG_HAVE_PERF_USER_STACK_DUMP= lib.mkForce yes;
-      CONFIG_HAVE_POSIX_CPU_TIMERS_TASK_WORK= lib.mkForce yes;
-      CONFIG_HAVE_PREEMPT_DYNAMIC= lib.mkForce yes;
-      CONFIG_HAVE_PREEMPT_DYNAMIC_CALL= lib.mkForce yes;
-      CONFIG_HAVE_REGS_AND_STACK_ACCESS_API= lib.mkForce yes;
-      CONFIG_HAVE_RELIABLE_STACKTRACE= lib.mkForce yes;
-      CONFIG_HAVE_RETHOOK= lib.mkForce yes;
-      CONFIG_HAVE_RSEQ= lib.mkForce yes;
-      CONFIG_HAVE_RUST= lib.mkForce yes;
-      CONFIG_HAVE_SAMPLE_FTRACE_DIRECT= lib.mkForce yes;
-      CONFIG_HAVE_SAMPLE_FTRACE_DIRECT_MULTI= lib.mkForce yes;
-      CONFIG_HAVE_SETUP_PER_CPU_AREA= lib.mkForce yes;
-      CONFIG_HAVE_SOFTIRQ_ON_OWN_STACK= lib.mkForce yes;
-      CONFIG_HAVE_STACKPROTECTOR= lib.mkForce yes;
-      CONFIG_HAVE_STACK_VALIDATION= lib.mkForce yes;
-      CONFIG_HAVE_STATIC_CALL= lib.mkForce yes;
-      CONFIG_HAVE_STATIC_CALL_INLINE= lib.mkForce yes;
-      CONFIG_HAVE_SYSCALL_TRACEPOINTS= lib.mkForce yes;
-      CONFIG_HAVE_UACCESS_VALIDATION= lib.mkForce yes;
-      CONFIG_HAVE_UNSTABLE_SCHED_CLOCK= lib.mkForce yes;
-      CONFIG_HAVE_USER_RETURN_NOTIFIER= lib.mkForce yes;
-      CONFIG_HAVE_VIRT_CPU_ACCOUNTING_GEN= lib.mkForce yes;
-      CONFIG_HPET_TIMER= lib.mkForce yes;
-      CONFIG_HZ_250= lib.mkForce yes;
-      CONFIG_HZ_PERIODIC= lib.mkForce yes;
-      CONFIG_I8253_LOCK= lib.mkForce yes;
-      CONFIG_IA32_FEAT_CTL= lib.mkForce yes;
-      CONFIG_IKCONFIG= lib.mkForce module;
-      CONFIG_INIT_STACK_ALL_ZERO= lib.mkForce yes;
-      CONFIG_INLINE_READ_UNLOCK= lib.mkForce yes;
-      CONFIG_INLINE_READ_UNLOCK_IRQ= lib.mkForce yes;
-      CONFIG_INLINE_SPIN_UNLOCK_IRQ= lib.mkForce yes;
-      CONFIG_INLINE_WRITE_UNLOCK= lib.mkForce yes;
-      CONFIG_INLINE_WRITE_UNLOCK_IRQ= lib.mkForce yes;
-      CONFIG_INPUT= lib.mkForce yes;
-      CONFIG_INSTRUCTION_DECODER= lib.mkForce yes;
-      CONFIG_IO_DELAY_0X80= lib.mkForce yes;
-      CONFIG_IO_URING= lib.mkForce yes;
-      CONFIG_IO_WQ= lib.mkForce yes;
-      CONFIG_IRQ_DOMAIN= lib.mkForce yes;
-      CONFIG_IRQ_DOMAIN_HIERARCHY= lib.mkForce yes;
-      CONFIG_IRQ_FORCED_THREADING= lib.mkForce yes;
-      CONFIG_IRQ_WORK= lib.mkForce yes;
-      CONFIG_ISA_DMA_API= lib.mkForce yes;
-      CONFIG_KALLSYMS= lib.mkForce yes;
-      CONFIG_KERNEL_GZIP= lib.mkForce yes;
-      CONFIG_KERNFS= lib.mkForce yes;
-      CONFIG_LD_IS_LLD= lib.mkForce yes;
-      CONFIG_LD_ORPHAN_WARN= lib.mkForce yes;
-      CONFIG_LEGACY_VSYSCALL_XONLY= lib.mkForce yes;
-      CONFIG_LOCKDEP_SUPPORT= lib.mkForce yes;
-      CONFIG_LOCK_DEBUGGING_SUPPORT= lib.mkForce yes;
-      CONFIG_LOCK_MM_AND_FIND_VMA= lib.mkForce yes;
-      CONFIG_LTO_NONE= lib.mkForce yes;
-      CONFIG_MEMBARRIER= lib.mkForce yes;
-      CONFIG_MICROCODE= lib.mkForce yes;
-      CONFIG_MMU= lib.mkForce yes;
-      CONFIG_MMU_GATHER_MERGE_VMAS= lib.mkForce yes;
-      CONFIG_MMU_GATHER_RCU_TABLE_FREE= lib.mkForce yes;
-      CONFIG_MMU_GATHER_TABLE_FREE= lib.mkForce yes;
-      CONFIG_MMU_LAZY_TLB_REFCOUNT= lib.mkForce yes;
-      CONFIG_MODIFY_LDT_SYSCALL= lib.mkForce yes;
-      CONFIG_MODULES_USE_ELF_RELA= lib.mkForce yes;
-      CONFIG_MSDOS_PARTITION= lib.mkForce yes;
-      CONFIG_MTRR= lib.mkForce yes;
-      CONFIG_MULTIUSER= lib.mkForce yes;
-      CONFIG_NAMESPACES= lib.mkForce yes;
-      CONFIG_NEED_DMA_MAP_STATE= lib.mkForce yes;
-      CONFIG_NEED_PER_CPU_EMBED_FIRST_CHUNK= lib.mkForce yes;
-      CONFIG_NEED_PER_CPU_KM= lib.mkForce yes;
-      CONFIG_NEED_PER_CPU_PAGE_FIRST_CHUNK= lib.mkForce yes;
-      CONFIG_NEED_SG_DMA_LENGTH= lib.mkForce yes;
-      CONFIG_OBJTOOL= lib.mkForce yes;
-      CONFIG_PAGE_MAPCOUNT= lib.mkForce yes;
-      CONFIG_PAGE_SIZE_4KB= lib.mkForce yes;
-      CONFIG_PAGE_SIZE_LESS_THAN_256KB= lib.mkForce yes;
-      CONFIG_PAGE_SIZE_LESS_THAN_64KB= lib.mkForce yes;
-      CONFIG_PCSPKR_PLATFORM= lib.mkForce yes;
-      CONFIG_PERF_EVENTS= lib.mkForce yes;
-      CONFIG_PHYS_ADDR_T_64BIT= lib.mkForce yes;
-      CONFIG_POSIX_CPU_TIMERS_TASK_WORK= lib.mkForce yes;
-      CONFIG_POSIX_TIMERS= lib.mkForce yes;
-      CONFIG_PREEMPT_NONE= lib.mkForce yes;
-      CONFIG_PREEMPT_NONE_BUILD= lib.mkForce yes;
-      CONFIG_PRINTK= lib.mkForce yes;
-      CONFIG_PROC_FS= lib.mkForce yes;
-      CONFIG_PROC_MEM_ALWAYS_FORCE= lib.mkForce yes;
-      CONFIG_PROC_PAGE_MONITOR= lib.mkForce yes;
-      CONFIG_PROC_PID_ARCH_STATUS= lib.mkForce yes;
-      CONFIG_PROC_SYSCTL= lib.mkForce yes;
-      CONFIG_PTP_1588_CLOCK_OPTIONAL= lib.mkForce yes;
-      CONFIG_RANDOMIZE_KSTACK_OFFSET= lib.mkForce yes;
-      CONFIG_RANDSTRUCT_NONE= lib.mkForce yes;
-      CONFIG_RSEQ= lib.mkForce yes;
-      CONFIG_RTC_LIB= lib.mkForce yes;
-      CONFIG_RTC_MC146818_LIB= lib.mkForce yes;
-      CONFIG_RT_MUTEXES= lib.mkForce yes;
-      CONFIG_RUSTC_HAS_COERCE_POINTEE= lib.mkForce yes;
-      CONFIG_RUSTC_HAS_SPAN_FILE= lib.mkForce yes;
-      CONFIG_RUSTC_HAS_UNNECESSARY_TRANSMUTES= lib.mkForce yes;
-      CONFIG_SBITMAP= lib.mkForce yes;
-      CONFIG_SCSI_MOD= lib.mkForce yes;
-      CONFIG_SECRETMEM= lib.mkForce yes;
-      CONFIG_SGETMASK_SYSCALL= lib.mkForce yes;
-      CONFIG_SHMEM= lib.mkForce yes;
-      CONFIG_SIGNALFD= lib.mkForce yes;
-      CONFIG_SLUB= lib.mkForce yes;
-      CONFIG_SLUB_DEBUG= lib.mkForce yes;
-      CONFIG_SOFTIRQ_ON_OWN_STACK= lib.mkForce yes;
-      CONFIG_SPARSEMEM= lib.mkForce yes;
-      CONFIG_SPARSEMEM_EXTREME= lib.mkForce yes;
-      CONFIG_SPARSEMEM_VMEMMAP= lib.mkForce yes;
-      CONFIG_SPARSEMEM_VMEMMAP_ENABLE= lib.mkForce yes;
-      CONFIG_SPARSE_IRQ= lib.mkForce yes;
-      CONFIG_SSB_POSSIBLE= lib.mkForce yes;
-      CONFIG_STACKDEPOT= lib.mkForce yes;
-      CONFIG_STACKTRACE= lib.mkForce yes;
-      CONFIG_STACKTRACE_SUPPORT= lib.mkForce yes;
-      CONFIG_STRICT_KERNEL_RWX= lib.mkForce yes;
-      CONFIG_SWIOTLB= lib.mkForce yes;
-      CONFIG_SYSCTL= lib.mkForce yes;
-      CONFIG_SYSCTL_EXCEPTION_TRACE= lib.mkForce yes;
-      CONFIG_SYSFS= lib.mkForce yes;
-      CONFIG_THREAD_INFO_IN_TASK= lib.mkForce yes;
-      CONFIG_TICK_CPU_ACCOUNTING= lib.mkForce yes;
-      CONFIG_TIMERFD= lib.mkForce yes;
-      CONFIG_TINY_RCU= lib.mkForce yes;
-      CONFIG_TINY_SRCU= lib.mkForce yes;
-      CONFIG_TOOLS_SUPPORT_RELR= lib.mkForce yes;
-      CONFIG_TRACE_IRQFLAGS_NMI_SUPPORT= lib.mkForce yes;
-      CONFIG_TRACE_IRQFLAGS_SUPPORT= lib.mkForce yes;
-      CONFIG_TRACING_SUPPORT= lib.mkForce yes;
-      CONFIG_TTY= lib.mkForce yes;
-      CONFIG_UNIX98_PTYS= lib.mkForce yes;
-      CONFIG_UNWINDER_ORC= lib.mkForce yes;
-      CONFIG_UP_LATE_INIT= lib.mkForce yes;
-      CONFIG_USB_OHCI_LITTLE_ENDIAN= lib.mkForce yes;
-      CONFIG_USER_STACKTRACE_SUPPORT= lib.mkForce yes;
-      CONFIG_VDSO_GETRANDOM= lib.mkForce yes;
-      CONFIG_VGA_CONSOLE= lib.mkForce yes;
-      CONFIG_VM_EVENT_COUNTERS= lib.mkForce yes;
-      CONFIG_VT= lib.mkForce yes;
-      CONFIG_VT_CONSOLE= lib.mkForce yes;
-      CONFIG_X86= lib.mkForce yes;
-      CONFIG_X86_16BIT= lib.mkForce yes;
-      CONFIG_X86_64= lib.mkForce yes;
-      CONFIG_X86_CMOV= lib.mkForce yes;
-      CONFIG_X86_CX8= lib.mkForce yes;
-      CONFIG_X86_DEBUGCTLMSR= lib.mkForce yes;
-      CONFIG_X86_DIRECT_GBPAGES= lib.mkForce yes;
-      CONFIG_X86_DISABLED_FEATURE_CALL_DEPTH= lib.mkForce yes;
-      CONFIG_X86_DISABLED_FEATURE_CENTAUR_MCR= lib.mkForce yes;
-      CONFIG_X86_DISABLED_FEATURE_CYRIX_ARR= lib.mkForce yes;
-      CONFIG_X86_DISABLED_FEATURE_ENQCMD= lib.mkForce yes;
-      CONFIG_X86_DISABLED_FEATURE_FRED= lib.mkForce yes;
-      CONFIG_X86_DISABLED_FEATURE_IBT= lib.mkForce yes;
-      CONFIG_X86_DISABLED_FEATURE_K6_MTRR= lib.mkForce yes;
-      CONFIG_X86_DISABLED_FEATURE_LAM= lib.mkForce yes;
-      CONFIG_X86_DISABLED_FEATURE_OSPKE= lib.mkForce yes;
-      CONFIG_X86_DISABLED_FEATURE_PKU= lib.mkForce yes;
-      CONFIG_X86_DISABLED_FEATURE_PTI= lib.mkForce yes;
-      CONFIG_X86_DISABLED_FEATURE_RETHUNK= lib.mkForce yes;
-      CONFIG_X86_DISABLED_FEATURE_RETPOLINE= lib.mkForce yes;
-      CONFIG_X86_DISABLED_FEATURE_RETPOLINE_LFENCE= lib.mkForce yes;
-      CONFIG_X86_DISABLED_FEATURE_SEV_SNP= lib.mkForce yes;
-      CONFIG_X86_DISABLED_FEATURE_SGX= lib.mkForce yes;
-      CONFIG_X86_DISABLED_FEATURE_TDX_GUEST= lib.mkForce yes;
-      CONFIG_X86_DISABLED_FEATURE_UNRET= lib.mkForce yes;
-      CONFIG_X86_DISABLED_FEATURE_USER_SHSTK= lib.mkForce yes;
-      CONFIG_X86_DISABLED_FEATURE_VME= lib.mkForce yes;
-      CONFIG_X86_DISABLED_FEATURE_XENPV= lib.mkForce yes;
-      CONFIG_X86_ESPFIX64= lib.mkForce yes;
-      CONFIG_X86_HAVE_PAE= lib.mkForce yes;
-      CONFIG_X86_INTEL_TSX_MODE_OFF= lib.mkForce yes;
-      CONFIG_X86_IO_APIC= lib.mkForce yes;
-      CONFIG_X86_LOCAL_APIC= lib.mkForce yes;
-      CONFIG_X86_MPPARSE= lib.mkForce yes;
-      CONFIG_X86_PAT= lib.mkForce yes;
-      CONFIG_X86_REQUIRED_FEATURE_ALWAYS= lib.mkForce yes;
-      CONFIG_X86_REQUIRED_FEATURE_CMOV= lib.mkForce yes;
-      CONFIG_X86_REQUIRED_FEATURE_CPUID= lib.mkForce yes;
-      CONFIG_X86_REQUIRED_FEATURE_CX8= lib.mkForce yes;
-      CONFIG_X86_REQUIRED_FEATURE_FPU= lib.mkForce yes;
-      CONFIG_X86_REQUIRED_FEATURE_FXSR= lib.mkForce yes;
-      CONFIG_X86_REQUIRED_FEATURE_LM= lib.mkForce yes;
-      CONFIG_X86_REQUIRED_FEATURE_MSR= lib.mkForce yes;
-      CONFIG_X86_REQUIRED_FEATURE_NOPL= lib.mkForce yes;
-      CONFIG_X86_REQUIRED_FEATURE_PAE= lib.mkForce yes;
-      CONFIG_X86_REQUIRED_FEATURE_PGE= lib.mkForce yes;
-      CONFIG_X86_REQUIRED_FEATURE_PSE= lib.mkForce yes;
-      CONFIG_X86_REQUIRED_FEATURE_UP= lib.mkForce yes;
-      CONFIG_X86_REQUIRED_FEATURE_XMM2= lib.mkForce yes;
-      CONFIG_X86_REQUIRED_FEATURE_XMM= lib.mkForce yes;
-      CONFIG_X86_TSC= lib.mkForce yes;
-      CONFIG_X86_UMIP= lib.mkForce yes;
-      CONFIG_X86_VMX_FEATURE_NAMES= lib.mkForce yes;
-      CONFIG_X86_VSYSCALL_EMULATION= lib.mkForce yes;
-      CONFIG_ZONE_DMA32= lib.mkForce yes;
-      CONFIG_ZONE_DMA= lib.mkForce yes;
+      "64BIT" = lib.mkForce yes;
+      ADVISE_SYSCALLS = lib.mkForce yes;
+      AIO = lib.mkForce yes;
+      ALLOW_DEV_COREDUMP = lib.mkForce yes;
+      ARCH_CLOCKSOURCE_INIT = lib.mkForce yes;
+      ARCH_CONFIGURES_CPU_MITIGATIONS = lib.mkForce yes;
+      ARCH_CORRECT_STACKTRACE_ON_KRETPROBE = lib.mkForce yes;
+      ARCH_DEFAULT_CRASH_DUMP = lib.mkForce yes;
+      ARCH_DMA_ADDR_T_64BIT = lib.mkForce yes;
+      ARCH_ENABLE_MEMORY_HOTPLUG = lib.mkForce yes;
+      ARCH_ENABLE_SPLIT_PMD_PTLOCK = lib.mkForce yes;
+      ARCH_HAS_ADD_PAGES = lib.mkForce yes;
+      ARCH_HAS_CACHE_LINE_SIZE = lib.mkForce yes;
+      ARCH_HAS_COPY_MC = lib.mkForce yes;
+      ARCH_HAS_CPU_CACHE_INVALIDATE_MEMREGION = lib.mkForce yes;
+      ARCH_HAS_CPU_FINALIZE_INIT = lib.mkForce yes;
+      ARCH_HAS_CPU_RELAX = lib.mkForce yes;
+      ARCH_HAS_CRC32 = lib.mkForce yes;
+      ARCH_HAS_CRC64 = lib.mkForce yes;
+      ARCH_HAS_CRC_T10DIF = lib.mkForce yes;
+      ARCH_HAS_CURRENT_STACK_POINTER = lib.mkForce yes;
+      ARCH_HAS_DEBUG_VIRTUAL = lib.mkForce yes;
+      ARCH_HAS_DEBUG_VM_PGTABLE = lib.mkForce yes;
+      ARCH_HAS_DEBUG_WX = lib.mkForce yes;
+      ARCH_HAS_DEVMEM_IS_ALLOWED = lib.mkForce yes;
+      ARCH_HAS_ELFCORE_COMPAT = lib.mkForce yes;
+      ARCH_HAS_ELF_RANDOMIZE = lib.mkForce yes;
+      ARCH_HAS_FAST_MULTIPLIER = lib.mkForce yes;
+      ARCH_HAS_FORTIFY_SOURCE = lib.mkForce yes;
+      ARCH_HAS_GCOV_PROFILE_ALL = lib.mkForce yes;
+      ARCH_HAS_GIGANTIC_PAGE = lib.mkForce yes;
+      ARCH_HAS_HW_PTE_YOUNG = lib.mkForce yes;
+      ARCH_HAS_KCOV = lib.mkForce yes;
+      ARCH_HAS_KERNEL_FPU_SUPPORT = lib.mkForce yes;
+      ARCH_HAS_MEMBARRIER_SYNC_CORE = lib.mkForce yes;
+      ARCH_HAS_MEM_ENCRYPT = lib.mkForce yes;
+      ARCH_HAS_NMI_SAFE_THIS_CPU_OPS = lib.mkForce yes;
+      ARCH_HAS_NONLEAF_PMD_YOUNG = lib.mkForce yes;
+      ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE = lib.mkForce yes;
+      ARCH_HAS_PARANOID_L1D_FLUSH = lib.mkForce yes;
+      ARCH_HAS_PMEM_API = lib.mkForce yes;
+      ARCH_HAS_PREEMPT_LAZY = lib.mkForce yes;
+      ARCH_HAS_PTDUMP = lib.mkForce yes;
+      ARCH_HAS_PTE_DEVMAP = lib.mkForce yes;
+      ARCH_HAS_PTE_SPECIAL = lib.mkForce yes;
+      ARCH_HAS_SET_DIRECT_MAP = lib.mkForce yes;
+      ARCH_HAS_SET_MEMORY = lib.mkForce yes;
+      ARCH_HAS_STRICT_KERNEL_RWX = lib.mkForce yes;
+      ARCH_HAS_STRICT_MODULE_RWX = lib.mkForce yes;
+      ARCH_HAS_SYNC_CORE_BEFORE_USERMODE = lib.mkForce yes;
+      ARCH_HAS_SYSCALL_WRAPPER = lib.mkForce yes;
+      ARCH_HAS_UACCESS_FLUSHCACHE = lib.mkForce yes;
+      ARCH_HAS_UBSAN = lib.mkForce yes;
+      ARCH_HAVE_EXTRA_ELF_NOTES = lib.mkForce yes;
+      ARCH_HAVE_NMI_SAFE_CMPXCHG = lib.mkForce yes;
+      ARCH_HIBERNATION_POSSIBLE = lib.mkForce yes;
+      ARCH_MAY_HAVE_PC_FDC = lib.mkForce yes;
+      ARCH_MHP_MEMMAP_ON_MEMORY_ENABLE = lib.mkForce yes;
+      ARCH_MIGHT_HAVE_PC_PARPORT = lib.mkForce yes;
+      ARCH_MIGHT_HAVE_PC_SERIO = lib.mkForce yes;
+      ARCH_SPARSEMEM_DEFAULT = lib.mkForce yes;
+      ARCH_SPARSEMEM_ENABLE = lib.mkForce yes;
+      ARCH_STACKWALK = lib.mkForce yes;
+      ARCH_SUPPORTS_ACPI = lib.mkForce yes;
+      ARCH_SUPPORTS_ATOMIC_RMW = lib.mkForce yes;
+      ARCH_SUPPORTS_AUTOFDO_CLANG = lib.mkForce yes;
+      ARCH_SUPPORTS_CFI_CLANG = lib.mkForce yes;
+      ARCH_SUPPORTS_CRASH_DUMP = lib.mkForce yes;
+      ARCH_SUPPORTS_CRASH_HOTPLUG = lib.mkForce yes;
+      ARCH_SUPPORTS_DEBUG_PAGEALLOC = lib.mkForce yes;
+      ARCH_SUPPORTS_INT128 = lib.mkForce yes;
+      ARCH_SUPPORTS_KEXEC = lib.mkForce yes;
+      ARCH_SUPPORTS_KEXEC_BZIMAGE_VERIFY_SIG = lib.mkForce yes;
+      ARCH_SUPPORTS_KEXEC_FILE = lib.mkForce yes;
+      ARCH_SUPPORTS_KEXEC_HANDOVER = lib.mkForce yes;
+      ARCH_SUPPORTS_KEXEC_JUMP = lib.mkForce yes;
+      ARCH_SUPPORTS_KEXEC_PURGATORY = lib.mkForce yes;
+      ARCH_SUPPORTS_KEXEC_SIG = lib.mkForce yes;
+      ARCH_SUPPORTS_KEXEC_SIG_FORCE = lib.mkForce yes;
+      ARCH_SUPPORTS_KMAP_LOCAL_FORCE_MAP = lib.mkForce yes;
+      ARCH_SUPPORTS_LTO_CLANG = lib.mkForce yes;
+      ARCH_SUPPORTS_LTO_CLANG_THIN = lib.mkForce yes;
+      ARCH_SUPPORTS_MSEAL_SYSTEM_MAPPINGS = lib.mkForce yes;
+      ARCH_SUPPORTS_NUMA_BALANCING = lib.mkForce yes;
+      ARCH_SUPPORTS_PAGE_TABLE_CHECK = lib.mkForce yes;
+      ARCH_SUPPORTS_PER_VMA_LOCK = lib.mkForce yes;
+      ARCH_SUPPORTS_PROPELLER_CLANG = lib.mkForce yes;
+      ARCH_SUPPORTS_PT_RECLAIM = lib.mkForce yes;
+      ARCH_SUPPORTS_RT = lib.mkForce yes;
+      ARCH_SUPPORTS_UPROBES = lib.mkForce yes;
+      ARCH_SUSPEND_POSSIBLE = lib.mkForce yes;
+      ARCH_USES_PG_ARCH_2 = lib.mkForce yes;
+      ARCH_USE_BUILTIN_BSWAP = lib.mkForce yes;
+      ARCH_USE_CMPXCHG_LOCKREF = lib.mkForce yes;
+      ARCH_USE_MEMTEST = lib.mkForce yes;
+      ARCH_USE_QUEUED_RWLOCKS = lib.mkForce yes;
+      ARCH_USE_QUEUED_SPINLOCKS = lib.mkForce yes;
+      ARCH_USE_SYM_ANNOTATIONS = lib.mkForce yes;
+      ARCH_WANTS_DYNAMIC_TASK_STRUCT = lib.mkForce yes;
+      ARCH_WANTS_NO_INSTR = lib.mkForce yes;
+      ARCH_WANTS_THP_SWAP = lib.mkForce yes;
+      ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH = lib.mkForce yes;
+      ARCH_WANT_DEFAULT_BPF_JIT = lib.mkForce yes;
+      ARCH_WANT_GENERAL_HUGETLB = lib.mkForce yes;
+      ARCH_WANT_HUGETLB_VMEMMAP_PREINIT = lib.mkForce yes;
+      ARCH_WANT_HUGE_PMD_SHARE = lib.mkForce yes;
+      ARCH_WANT_IRQS_OFF_ACTIVATE_MM = lib.mkForce yes;
+      ARCH_WANT_LD_ORPHAN_WARN = lib.mkForce yes;
+      ARCH_WANT_OPTIMIZE_DAX_VMEMMAP = lib.mkForce yes;
+      ARCH_WANT_OPTIMIZE_HUGETLB_VMEMMAP = lib.mkForce yes;
+      AS_AVX512 = lib.mkForce yes;
+      AS_GFNI = lib.mkForce yes;
+      AS_HAS_NON_CONST_ULEB128 = lib.mkForce yes;
+      AS_IS_LLVM = lib.mkForce yes;
+      AS_VAES = lib.mkForce yes;
+      AS_VPCLMULQDQ = lib.mkForce yes;
+      AS_WRUSS = lib.mkForce yes;
+      AUDIT_ARCH = lib.mkForce yes;
+      BCMA_POSSIBLE = lib.mkForce yes;
+      BITREVERSE = lib.mkForce yes;
+      BLOCK = lib.mkForce yes;
+      BROADCAST_TLB_FLUSH = lib.mkForce yes;
+      BROKEN_ON_SMP = lib.mkForce yes;
+      BUG = lib.mkForce yes;
+      BUILDTIME_TABLE_SORT = lib.mkForce yes;
+      CACHESTAT_SYSCALL = lib.mkForce yes;
+      CC_CAN_LINK = lib.mkForce yes;
+      CC_HAS_ASM_GOTO_OUTPUT = lib.mkForce yes;
+      CC_HAS_ASM_GOTO_TIED_OUTPUT = lib.mkForce yes;
+      CC_HAS_ASM_INLINE = lib.mkForce yes;
+      CC_HAS_AUTO_VAR_INIT_PATTERN = lib.mkForce yes;
+      CC_HAS_AUTO_VAR_INIT_ZERO = lib.mkForce yes;
+      CC_HAS_AUTO_VAR_INIT_ZERO_BARE = lib.mkForce yes;
+      CC_HAS_COUNTED_BY = lib.mkForce yes;
+      CC_HAS_ENTRY_PADDING = lib.mkForce yes;
+      CC_HAS_IBT = lib.mkForce yes;
+      CC_HAS_INT128 = lib.mkForce yes;
+      CC_HAS_KASAN_GENERIC = lib.mkForce yes;
+      CC_HAS_KASAN_SW_TAGS = lib.mkForce yes;
+      CC_HAS_MARCH_NATIVE = lib.mkForce yes;
+      CC_HAS_NAMED_AS_FIXED_SANITIZERS = lib.mkForce yes;
+      CC_HAS_NO_PROFILE_FN_ATTR = lib.mkForce yes;
+      CC_HAS_RANDSTRUCT = lib.mkForce yes;
+      CC_HAS_RETURN_THUNK = lib.mkForce yes;
+      CC_HAS_SANE_FUNCTION_ALIGNMENT = lib.mkForce yes;
+      CC_HAS_SLS = lib.mkForce yes;
+      CC_HAS_WORKING_NOSANITIZE_ADDRESS = lib.mkForce yes;
+      CC_HAS_ZERO_CALL_USED_REGS = lib.mkForce yes;
+      CC_IS_CLANG = lib.mkForce yes;
+      CC_OPTIMIZE_FOR_PERFORMANCE = lib.mkForce yes;
+      CLKBLD_I8253 = lib.mkForce yes;
+      CLKEVT_I8253 = lib.mkForce yes;
+      CLOCKSOURCE_WATCHDOG = lib.mkForce yes;
+      CONSOLE_TRANSLATIONS = lib.mkForce yes;
+      COREDUMP = lib.mkForce yes;
+      CPU_SUP_AMD = lib.mkForce yes;
+      CPU_SUP_CENTAUR = lib.mkForce yes;
+      CPU_SUP_HYGON = lib.mkForce yes;
+      CPU_SUP_INTEL = lib.mkForce yes;
+      CPU_SUP_ZHAOXIN = lib.mkForce yes;
+      CRC32 = lib.mkForce yes;
+      CRC32_ARCH = lib.mkForce yes;
+      CRC_OPTIMIZATIONS = lib.mkForce yes;
+      CRYPTO_ARCH_HAVE_LIB_SHA256 = lib.mkForce yes;
+      CRYPTO_ARCH_HAVE_LIB_SHA256_SIMD = lib.mkForce yes;
+      CRYPTO_LIB_BLAKE2S_GENERIC = lib.mkForce yes;
+      CRYPTO_LIB_SHA256 = lib.mkForce yes;
+      CRYPTO_LIB_SHA256_GENERIC = lib.mkForce yes;
+      CRYPTO_SHA256_X86_64 = lib.mkForce yes;
+      DCACHE_WORD_ACCESS = lib.mkForce yes;
+      DEBUG_BUGVERBOSE = lib.mkForce yes;
+      DEBUG_MEMORY_INIT = lib.mkForce yes;
+      DEFAULT_SECURITY_DAC = lib.mkForce yes;
+      DMA_NEED_SYNC = lib.mkForce yes;
+      DMI = lib.mkForce yes;
+      DMI_SCAN_MACHINE_NON_EFI_FALLBACK = lib.mkForce yes;
+      DUMMY_CONSOLE = lib.mkForce yes;
+      DYNAMIC_SIGFRAME = lib.mkForce yes;
+      EARLY_PRINTK = lib.mkForce yes;
+      EDAC_ATOMIC_SCRUB = lib.mkForce yes;
+      EDAC_SUPPORT = lib.mkForce yes;
+      EFI_PARTITION = lib.mkForce yes;
+      ELF_CORE = lib.mkForce yes;
+      EPOLL = lib.mkForce yes;
+      EVENTFD = lib.mkForce yes;
+      EXCLUSIVE_SYSTEM_RAM = lib.mkForce yes;
+      EXPORTFS = lib.mkForce yes;
+      FHANDLE = lib.mkForce yes;
+      FILE_LOCKING = lib.mkForce yes;
+      FIRMWARE_MEMMAP = lib.mkForce yes;
+      FIX_EARLYCON_MEM = lib.mkForce yes;
+      FORCE_NR_CPUS = lib.mkForce yes;
+      FS_IOMAP = lib.mkForce yes;
+      FUNCTION_ALIGNMENT_16B = lib.mkForce yes;
+      FUNCTION_ALIGNMENT_4B = lib.mkForce yes;
+      FUTEX = lib.mkForce yes;
+      FUTEX_PI = lib.mkForce yes;
+      FW_LOADER = lib.mkForce yes;
+      GCC10_NO_ARRAY_BOUNDS = lib.mkForce yes;
+      GCC_NO_STRINGOP_OVERFLOW = lib.mkForce yes;
+      GENERIC_BUG = lib.mkForce yes;
+      GENERIC_BUG_RELATIVE_POINTERS = lib.mkForce yes;
+      GENERIC_CALIBRATE_DELAY = lib.mkForce yes;
+      GENERIC_CLOCKEVENTS = lib.mkForce yes;
+      GENERIC_CLOCKEVENTS_BROADCAST = lib.mkForce yes;
+      GENERIC_CLOCKEVENTS_BROADCAST_IDLE = lib.mkForce yes;
+      GENERIC_CLOCKEVENTS_MIN_ADJUST = lib.mkForce yes;
+      GENERIC_CMOS_UPDATE = lib.mkForce yes;
+      GENERIC_CPU_AUTOPROBE = lib.mkForce yes;
+      GENERIC_CPU_DEVICES = lib.mkForce yes;
+      GENERIC_CPU_VULNERABILITIES = lib.mkForce yes;
+      GENERIC_EARLY_IOREMAP = lib.mkForce yes;
+      GENERIC_ENTRY = lib.mkForce yes;
+      GENERIC_GETTIMEOFDAY = lib.mkForce yes;
+      GENERIC_IOMAP = lib.mkForce yes;
+      GENERIC_IRQ_MATRIX_ALLOCATOR = lib.mkForce yes;
+      GENERIC_IRQ_PROBE = lib.mkForce yes;
+      GENERIC_IRQ_RESERVATION_MODE = lib.mkForce yes;
+      GENERIC_IRQ_SHOW = lib.mkForce yes;
+      GENERIC_ISA_DMA = lib.mkForce yes;
+      GENERIC_PCI_IOMAP = lib.mkForce yes;
+      GENERIC_SMP_IDLE_THREAD = lib.mkForce yes;
+      GENERIC_STRNCPY_FROM_USER = lib.mkForce yes;
+      GENERIC_STRNLEN_USER = lib.mkForce yes;
+      GENERIC_TIME_VSYSCALL = lib.mkForce yes;
+      GENERIC_VDSO_DATA_STORE = lib.mkForce yes;
+      GENERIC_VDSO_OVERFLOW_PROTECT = lib.mkForce yes;
+      GENERIC_VDSO_TIME_NS = lib.mkForce yes;
+      HARDIRQS_SW_RESEND = lib.mkForce yes;
+      HARDLOCKUP_CHECK_TIMESTAMP = lib.mkForce yes;
+      HAS_DMA = lib.mkForce yes;
+      HAS_IOMEM = lib.mkForce yes;
+      HAS_IOPORT = lib.mkForce yes;
+      HAS_IOPORT_MAP = lib.mkForce yes;
+      HAS_LTO_CLANG = lib.mkForce yes;
+      HAVE_ALIGNED_STRUCT_PAGE = lib.mkForce yes;
+      HAVE_ARCH_AUDITSYSCALL = lib.mkForce yes;
+      HAVE_ARCH_HUGE_VMALLOC = lib.mkForce yes;
+      HAVE_ARCH_HUGE_VMAP = lib.mkForce yes;
+      HAVE_ARCH_JUMP_LABEL = lib.mkForce yes;
+      HAVE_ARCH_JUMP_LABEL_RELATIVE = lib.mkForce yes;
+      HAVE_ARCH_KASAN = lib.mkForce yes;
+      HAVE_ARCH_KASAN_VMALLOC = lib.mkForce yes;
+      HAVE_ARCH_KCSAN = lib.mkForce yes;
+      HAVE_ARCH_KFENCE = lib.mkForce yes;
+      HAVE_ARCH_KGDB = lib.mkForce yes;
+      HAVE_ARCH_KMSAN = lib.mkForce yes;
+      HAVE_ARCH_MMAP_RND_BITS = lib.mkForce yes;
+      HAVE_ARCH_PREL32_RELOCATIONS = lib.mkForce yes;
+      HAVE_ARCH_RANDOMIZE_KSTACK_OFFSET = lib.mkForce yes;
+      HAVE_ARCH_SECCOMP = lib.mkForce yes;
+      HAVE_ARCH_SECCOMP_FILTER = lib.mkForce yes;
+      HAVE_ARCH_SOFT_DIRTY = lib.mkForce yes;
+      HAVE_ARCH_STACKLEAK = lib.mkForce yes;
+      HAVE_ARCH_THREAD_STRUCT_WHITELIST = lib.mkForce yes;
+      HAVE_ARCH_TRACEHOOK = lib.mkForce yes;
+      HAVE_ARCH_TRANSPARENT_HUGEPAGE = lib.mkForce yes;
+      HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD = lib.mkForce yes;
+      HAVE_ARCH_VMAP_STACK = lib.mkForce yes;
+      HAVE_ARCH_WITHIN_STACK_FRAMES = lib.mkForce yes;
+      HAVE_ASM_MODVERSIONS = lib.mkForce yes;
+      HAVE_BUILDTIME_MCOUNT_SORT = lib.mkForce yes;
+      HAVE_CFI_ICALL_NORMALIZE_INTEGERS_CLANG = lib.mkForce yes;
+      HAVE_CFI_ICALL_NORMALIZE_INTEGERS_RUSTC = lib.mkForce yes;
+      HAVE_CMPXCHG_DOUBLE = lib.mkForce yes;
+      HAVE_CMPXCHG_LOCAL = lib.mkForce yes;
+      HAVE_CONTEXT_TRACKING_USER = lib.mkForce yes;
+      HAVE_CONTEXT_TRACKING_USER_OFFSTACK = lib.mkForce yes;
+      HAVE_C_RECORDMCOUNT = lib.mkForce yes;
+      HAVE_DEBUG_KMEMLEAK = lib.mkForce yes;
+      HAVE_DMA_CONTIGUOUS = lib.mkForce yes;
+      HAVE_DYNAMIC_FTRACE = lib.mkForce yes;
+      HAVE_DYNAMIC_FTRACE_NO_PATCHABLE = lib.mkForce yes;
+      HAVE_DYNAMIC_FTRACE_WITH_ARGS = lib.mkForce yes;
+      HAVE_DYNAMIC_FTRACE_WITH_DIRECT_CALLS = lib.mkForce yes;
+      HAVE_DYNAMIC_FTRACE_WITH_REGS = lib.mkForce yes;
+      HAVE_EBPF_JIT = lib.mkForce yes;
+      HAVE_EFFICIENT_UNALIGNED_ACCESS = lib.mkForce yes;
+      HAVE_EXIT_THREAD = lib.mkForce yes;
+      HAVE_FENTRY = lib.mkForce yes;
+      HAVE_FTRACE_MCOUNT_RECORD = lib.mkForce yes;
+      HAVE_FTRACE_REGS_HAVING_PT_REGS = lib.mkForce yes;
+      HAVE_FUNCTION_ARG_ACCESS_API = lib.mkForce yes;
+      HAVE_FUNCTION_ERROR_INJECTION = lib.mkForce yes;
+      HAVE_FUNCTION_TRACER = lib.mkForce yes;
+      HAVE_GCC_PLUGINS = lib.mkForce yes;
+      HAVE_GENERIC_VDSO = lib.mkForce yes;
+      HAVE_GUP_FAST = lib.mkForce yes;
+      HAVE_HARDLOCKUP_DETECTOR_PERF = lib.mkForce yes;
+      HAVE_HW_BREAKPOINT = lib.mkForce yes;
+      HAVE_IOREMAP_PROT = lib.mkForce yes;
+      HAVE_IRQ_EXIT_ON_IRQ_STACK = lib.mkForce yes;
+      HAVE_IRQ_TIME_ACCOUNTING = lib.mkForce yes;
+      HAVE_JUMP_LABEL_HACK = lib.mkForce yes;
+      HAVE_KCSAN_COMPILER = lib.mkForce yes;
+      HAVE_KERNEL_BZIP2 = lib.mkForce yes;
+      HAVE_KERNEL_GZIP = lib.mkForce yes;
+      HAVE_KERNEL_LZ4 = lib.mkForce yes;
+      HAVE_KERNEL_LZMA = lib.mkForce yes;
+      HAVE_KERNEL_LZO = lib.mkForce yes;
+      HAVE_KERNEL_XZ = lib.mkForce yes;
+      HAVE_KERNEL_ZSTD = lib.mkForce yes;
+      HAVE_KMSAN_COMPILER = lib.mkForce yes;
+      HAVE_KPROBES = lib.mkForce yes;
+      HAVE_KPROBES_ON_FTRACE = lib.mkForce yes;
+      HAVE_KRETPROBES = lib.mkForce yes;
+      HAVE_LIVEPATCH = lib.mkForce yes;
+      HAVE_MIXED_BREAKPOINTS_REGS = lib.mkForce yes;
+      HAVE_MMIOTRACE_SUPPORT = lib.mkForce yes;
+      HAVE_MOD_ARCH_SPECIFIC = lib.mkForce yes;
+      HAVE_MOVE_PMD = lib.mkForce yes;
+      HAVE_MOVE_PUD = lib.mkForce yes;
+      HAVE_NMI = lib.mkForce yes;
+      HAVE_NOINSTR_HACK = lib.mkForce yes;
+      HAVE_NOINSTR_VALIDATION = lib.mkForce yes;
+      HAVE_OBJTOOL = lib.mkForce yes;
+      HAVE_OBJTOOL_MCOUNT = lib.mkForce yes;
+      HAVE_OBJTOOL_NOP_MCOUNT = lib.mkForce yes;
+      HAVE_OPTPROBES = lib.mkForce yes;
+      HAVE_PAGE_SIZE_4KB = lib.mkForce yes;
+      HAVE_PCI = lib.mkForce yes;
+      HAVE_PCSPKR_PLATFORM = lib.mkForce yes;
+      HAVE_PERF_EVENTS = lib.mkForce yes;
+      HAVE_PERF_EVENTS_NMI = lib.mkForce yes;
+      HAVE_PERF_REGS = lib.mkForce yes;
+      HAVE_PERF_USER_STACK_DUMP = lib.mkForce yes;
+      HAVE_POSIX_CPU_TIMERS_TASK_WORK = lib.mkForce yes;
+      HAVE_PREEMPT_DYNAMIC = lib.mkForce yes;
+      HAVE_PREEMPT_DYNAMIC_CALL = lib.mkForce yes;
+      HAVE_REGS_AND_STACK_ACCESS_API = lib.mkForce yes;
+      HAVE_RELIABLE_STACKTRACE = lib.mkForce yes;
+      HAVE_RETHOOK = lib.mkForce yes;
+      HAVE_RSEQ = lib.mkForce yes;
+      HAVE_RUST = lib.mkForce yes;
+      HAVE_SAMPLE_FTRACE_DIRECT = lib.mkForce yes;
+      HAVE_SAMPLE_FTRACE_DIRECT_MULTI = lib.mkForce yes;
+      HAVE_SETUP_PER_CPU_AREA = lib.mkForce yes;
+      HAVE_SOFTIRQ_ON_OWN_STACK = lib.mkForce yes;
+      HAVE_STACKPROTECTOR = lib.mkForce yes;
+      HAVE_STACK_VALIDATION = lib.mkForce yes;
+      HAVE_STATIC_CALL = lib.mkForce yes;
+      HAVE_STATIC_CALL_INLINE = lib.mkForce yes;
+      HAVE_SYSCALL_TRACEPOINTS = lib.mkForce yes;
+      HAVE_UACCESS_VALIDATION = lib.mkForce yes;
+      HAVE_UNSTABLE_SCHED_CLOCK = lib.mkForce yes;
+      HAVE_USER_RETURN_NOTIFIER = lib.mkForce yes;
+      HAVE_VIRT_CPU_ACCOUNTING_GEN = lib.mkForce yes;
+      HPET_TIMER = lib.mkForce yes;
+      HZ_250 = lib.mkForce yes;
+      HZ_PERIODIC = lib.mkForce yes;
+      I8253_LOCK = lib.mkForce yes;
+      IA32_FEAT_CTL = lib.mkForce yes;
+      IKCONFIG = lib.mkForce module;
+      INIT_STACK_ALL_ZERO = lib.mkForce yes;
+      INLINE_READ_UNLOCK = lib.mkForce yes;
+      INLINE_READ_UNLOCK_IRQ = lib.mkForce yes;
+      INLINE_SPIN_UNLOCK_IRQ = lib.mkForce yes;
+      INLINE_WRITE_UNLOCK = lib.mkForce yes;
+      INLINE_WRITE_UNLOCK_IRQ = lib.mkForce yes;
+      INPUT = lib.mkForce yes;
+      INSTRUCTION_DECODER = lib.mkForce yes;
+      IO_DELAY_0X80 = lib.mkForce yes;
+      IO_URING = lib.mkForce yes;
+      IO_WQ = lib.mkForce yes;
+      IRQ_DOMAIN = lib.mkForce yes;
+      IRQ_DOMAIN_HIERARCHY = lib.mkForce yes;
+      IRQ_FORCED_THREADING = lib.mkForce yes;
+      IRQ_WORK = lib.mkForce yes;
+      ISA_DMA_API = lib.mkForce yes;
+      KALLSYMS = lib.mkForce yes;
+      KERNEL_GZIP = lib.mkForce yes;
+      KERNFS = lib.mkForce yes;
+      LD_IS_LLD = lib.mkForce yes;
+      LD_ORPHAN_WARN = lib.mkForce yes;
+      LEGACY_VSYSCALL_XONLY = lib.mkForce yes;
+      LOCKDEP_SUPPORT = lib.mkForce yes;
+      LOCK_DEBUGGING_SUPPORT = lib.mkForce yes;
+      LOCK_MM_AND_FIND_VMA = lib.mkForce yes;
+      LTO_NONE = lib.mkForce yes;
+      MEMBARRIER = lib.mkForce yes;
+      MICROCODE = lib.mkForce yes;
+      MMU = lib.mkForce yes;
+      MMU_GATHER_MERGE_VMAS = lib.mkForce yes;
+      MMU_GATHER_RCU_TABLE_FREE = lib.mkForce yes;
+      MMU_GATHER_TABLE_FREE = lib.mkForce yes;
+      MMU_LAZY_TLB_REFCOUNT = lib.mkForce yes;
+      MODIFY_LDT_SYSCALL = lib.mkForce yes;
+      MODULES_USE_ELF_RELA = lib.mkForce yes;
+      MSDOS_PARTITION = lib.mkForce yes;
+      MTRR = lib.mkForce yes;
+      MULTIUSER = lib.mkForce yes;
+      NAMESPACES = lib.mkForce yes;
+      NEED_DMA_MAP_STATE = lib.mkForce yes;
+      NEED_PER_CPU_EMBED_FIRST_CHUNK = lib.mkForce yes;
+      NEED_PER_CPU_KM = lib.mkForce yes;
+      NEED_PER_CPU_PAGE_FIRST_CHUNK = lib.mkForce yes;
+      NEED_SG_DMA_LENGTH = lib.mkForce yes;
+      OBJTOOL = lib.mkForce yes;
+      PAGE_MAPCOUNT = lib.mkForce yes;
+      PAGE_SIZE_4KB = lib.mkForce yes;
+      PAGE_SIZE_LESS_THAN_256KB = lib.mkForce yes;
+      PAGE_SIZE_LESS_THAN_64KB = lib.mkForce yes;
+      PCSPKR_PLATFORM = lib.mkForce yes;
+      PERF_EVENTS = lib.mkForce yes;
+      PHYS_ADDR_T_64BIT = lib.mkForce yes;
+      POSIX_CPU_TIMERS_TASK_WORK = lib.mkForce yes;
+      POSIX_TIMERS = lib.mkForce yes;
+      PREEMPT_NONE = lib.mkForce yes;
+      PREEMPT_NONE_BUILD = lib.mkForce yes;
+      PRINTK = lib.mkForce yes;
+      PROC_FS = lib.mkForce yes;
+      PROC_MEM_ALWAYS_FORCE = lib.mkForce yes;
+      PROC_PAGE_MONITOR = lib.mkForce yes;
+      PROC_PID_ARCH_STATUS = lib.mkForce yes;
+      PROC_SYSCTL = lib.mkForce yes;
+      PTP_1588_CLOCK_OPTIONAL = lib.mkForce yes;
+      RANDOMIZE_KSTACK_OFFSET = lib.mkForce yes;
+      RANDSTRUCT_NONE = lib.mkForce yes;
+      RSEQ = lib.mkForce yes;
+      RTC_LIB = lib.mkForce yes;
+      RTC_MC146818_LIB = lib.mkForce yes;
+      RT_MUTEXES = lib.mkForce yes;
+      RUSTC_HAS_COERCE_POINTEE = lib.mkForce yes;
+      RUSTC_HAS_SPAN_FILE = lib.mkForce yes;
+      RUSTC_HAS_UNNECESSARY_TRANSMUTES = lib.mkForce yes;
+      SBITMAP = lib.mkForce yes;
+      SCSI_MOD = lib.mkForce yes;
+      SECRETMEM = lib.mkForce yes;
+      SGETMASK_SYSCALL = lib.mkForce yes;
+      SHMEM = lib.mkForce yes;
+      SIGNALFD = lib.mkForce yes;
+      SLUB = lib.mkForce yes;
+      SLUB_DEBUG = lib.mkForce yes;
+      SOFTIRQ_ON_OWN_STACK = lib.mkForce yes;
+      SPARSEMEM = lib.mkForce yes;
+      SPARSEMEM_EXTREME = lib.mkForce yes;
+      SPARSEMEM_VMEMMAP = lib.mkForce yes;
+      SPARSEMEM_VMEMMAP_ENABLE = lib.mkForce yes;
+      SPARSE_IRQ = lib.mkForce yes;
+      SSB_POSSIBLE = lib.mkForce yes;
+      STACKDEPOT = lib.mkForce yes;
+      STACKTRACE = lib.mkForce yes;
+      STACKTRACE_SUPPORT = lib.mkForce yes;
+      STRICT_KERNEL_RWX = lib.mkForce yes;
+      SWIOTLB = lib.mkForce yes;
+      SYSCTL = lib.mkForce yes;
+      SYSCTL_EXCEPTION_TRACE = lib.mkForce yes;
+      SYSFS = lib.mkForce yes;
+      THREAD_INFO_IN_TASK = lib.mkForce yes;
+      TICK_CPU_ACCOUNTING = lib.mkForce yes;
+      TIMERFD = lib.mkForce yes;
+      TINY_RCU = lib.mkForce yes;
+      TINY_SRCU = lib.mkForce yes;
+      TOOLS_SUPPORT_RELR = lib.mkForce yes;
+      TRACE_IRQFLAGS_NMI_SUPPORT = lib.mkForce yes;
+      TRACE_IRQFLAGS_SUPPORT = lib.mkForce yes;
+      TRACING_SUPPORT = lib.mkForce yes;
+      TTY = lib.mkForce yes;
+      UNIX98_PTYS = lib.mkForce yes;
+      UNWINDER_ORC = lib.mkForce yes;
+      UP_LATE_INIT = lib.mkForce yes;
+      USB_OHCI_LITTLE_ENDIAN = lib.mkForce yes;
+      USER_STACKTRACE_SUPPORT = lib.mkForce yes;
+      VDSO_GETRANDOM = lib.mkForce yes;
+      VGA_CONSOLE = lib.mkForce yes;
+      VM_EVENT_COUNTERS = lib.mkForce yes;
+      VT = lib.mkForce yes;
+      VT_CONSOLE = lib.mkForce yes;
+      X86 = lib.mkForce yes;
+      X86_16BIT = lib.mkForce yes;
+      X86_64 = lib.mkForce yes;
+      X86_CMOV = lib.mkForce yes;
+      X86_CX8 = lib.mkForce yes;
+      X86_DEBUGCTLMSR = lib.mkForce yes;
+      X86_DIRECT_GBPAGES = lib.mkForce yes;
+      X86_DISABLED_FEATURE_CALL_DEPTH = lib.mkForce yes;
+      X86_DISABLED_FEATURE_CENTAUR_MCR = lib.mkForce yes;
+      X86_DISABLED_FEATURE_CYRIX_ARR = lib.mkForce yes;
+      X86_DISABLED_FEATURE_ENQCMD = lib.mkForce yes;
+      X86_DISABLED_FEATURE_FRED = lib.mkForce yes;
+      X86_DISABLED_FEATURE_IBT = lib.mkForce yes;
+      X86_DISABLED_FEATURE_K6_MTRR = lib.mkForce yes;
+      X86_DISABLED_FEATURE_LAM = lib.mkForce yes;
+      X86_DISABLED_FEATURE_OSPKE = lib.mkForce yes;
+      X86_DISABLED_FEATURE_PKU = lib.mkForce yes;
+      X86_DISABLED_FEATURE_PTI = lib.mkForce yes;
+      X86_DISABLED_FEATURE_RETHUNK = lib.mkForce yes;
+      X86_DISABLED_FEATURE_RETPOLINE = lib.mkForce yes;
+      X86_DISABLED_FEATURE_RETPOLINE_LFENCE = lib.mkForce yes;
+      X86_DISABLED_FEATURE_SEV_SNP = lib.mkForce yes;
+      X86_DISABLED_FEATURE_SGX = lib.mkForce yes;
+      X86_DISABLED_FEATURE_TDX_GUEST = lib.mkForce yes;
+      X86_DISABLED_FEATURE_UNRET = lib.mkForce yes;
+      X86_DISABLED_FEATURE_USER_SHSTK = lib.mkForce yes;
+      X86_DISABLED_FEATURE_VME = lib.mkForce yes;
+      X86_DISABLED_FEATURE_XENPV = lib.mkForce yes;
+      X86_ESPFIX64 = lib.mkForce yes;
+      X86_HAVE_PAE = lib.mkForce yes;
+      X86_INTEL_TSX_MODE_OFF = lib.mkForce yes;
+      X86_IO_APIC = lib.mkForce yes;
+      X86_LOCAL_APIC = lib.mkForce yes;
+      X86_MPPARSE = lib.mkForce yes;
+      X86_PAT = lib.mkForce yes;
+      X86_REQUIRED_FEATURE_ALWAYS = lib.mkForce yes;
+      X86_REQUIRED_FEATURE_CMOV = lib.mkForce yes;
+      X86_REQUIRED_FEATURE_CPUID = lib.mkForce yes;
+      X86_REQUIRED_FEATURE_CX8 = lib.mkForce yes;
+      X86_REQUIRED_FEATURE_FPU = lib.mkForce yes;
+      X86_REQUIRED_FEATURE_FXSR = lib.mkForce yes;
+      X86_REQUIRED_FEATURE_LM = lib.mkForce yes;
+      X86_REQUIRED_FEATURE_MSR = lib.mkForce yes;
+      X86_REQUIRED_FEATURE_NOPL = lib.mkForce yes;
+      X86_REQUIRED_FEATURE_PAE = lib.mkForce yes;
+      X86_REQUIRED_FEATURE_PGE = lib.mkForce yes;
+      X86_REQUIRED_FEATURE_PSE = lib.mkForce yes;
+      X86_REQUIRED_FEATURE_UP = lib.mkForce yes;
+      X86_REQUIRED_FEATURE_XMM2 = lib.mkForce yes;
+      X86_REQUIRED_FEATURE_XMM = lib.mkForce yes;
+      X86_TSC = lib.mkForce yes;
+      X86_UMIP = lib.mkForce yes;
+      X86_VMX_FEATURE_NAMES = lib.mkForce yes;
+      X86_VSYSCALL_EMULATION = lib.mkForce yes;
+      ZONE_DMA32 = lib.mkForce yes;
+      ZONE_DMA = lib.mkForce yes;
     };
   };
 
@@ -843,7 +857,7 @@ rec {
   # Options disabled by other options.  This is why we really need to
   # apply options via the kernel infrastructure rather than from
   # structured config.
-  localmod-fallout = {
+  subtract-fallout = {
     name = "localmode-fallout";
     patch = null;
     extraStructuredConfig = with lib.kernel; {
@@ -990,6 +1004,22 @@ rec {
       VGA_SWITCHEROO = lib.mkForce unset;
       VIDEO_V4L1 = lib.mkForce unset;
       VME = lib.mkForce unset;
+    };
+  };
+
+  addition-fallout = {
+    name = "addition-fallout";
+    patch = null;
+    extraStructuredConfig = with lib.kernel; {
+      # Stub
+    };
+  };
+
+  base-fallout = {
+    name = "base-fallout";
+    patch = null;
+    extraStructuredConfig = with lib.kernel; {
+      # Stub
     };
   };
 
@@ -2308,4 +2338,3 @@ rec {
     };
   };
 }
-

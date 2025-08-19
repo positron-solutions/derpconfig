@@ -44,7 +44,10 @@ let
 in {
   # Customize the patch set in use for either adding to a allnoconfig or
   # subtracting from defconfig
-  boot.kernelPatches = (import ./patches.nix {inherit lib;}).subtract;
+  boot.kernelPatches = with (import ./patches.nix {inherit lib;});
+    subtract ++ base;
+  # boot.kernelPatches = with (import ./patches.nix {inherit lib;});
+  #   addition ++ base;
 
   nixpkgs.overlays = [ kernelOverlay ];
   boot.kernelPackages = pkgs.linuxPackages_latest;
