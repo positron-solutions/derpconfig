@@ -103,7 +103,13 @@ infrastructure.**  Pay attention to `pkgs.kernel` and use of `lib.mkForce` and
 `mkDefault`.  💡 The `unset` option is really helpful when you need to turn off
 something that NixOS is trying to turn on!
 
-### Tips 💡
+## Tips 💡
+
+First, there is an ongoing rename from `extraStructuredConfig` (current) to
+`structuredExtraConfig` (new).  Watch out for this because there's almost no
+feedback depending on which commit you're on.
+
+### Extra Make Targets & Variables
 
 There are more make targets **and scripts** that support options and may
 streamline some workflows based on combining several configs.  It is good for us
