@@ -43,7 +43,7 @@ let
         # Be sure to always use defaults compatible with the intended host
         defconfig = "defconfig LLVM=1 ARCH=x86_64";
 
-        structuredExtraConfig = {
+        structuredExtraConfig = with lib.kernel; {
           CC_IS_CLANG = lib.mkForce yes;
           LTO = lib.mkForce yes;
           LTO_CLANG = lib.mkForce yes;
