@@ -364,6 +364,8 @@ This work is a preliminary exploration of several ideas:
 - On-demand Nvidia driver fixups and other automations for these finicky derivations
   that often require switching versions and are extremely easy to mess up the
   expressions for.
+- There are several patch <-> Nix conversion problems / opportunities that could
+  be useful during initial installation.
 
 ## Shameless Self-Promotion 💸
 
