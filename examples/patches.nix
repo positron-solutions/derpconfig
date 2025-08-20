@@ -139,6 +139,10 @@ rec {
     patch = null;
     extraStructuredConfig = with lib.kernel; {
       KVM = lib.mkForce no;
+      HYPERV = lib.mkForce no;
+
+      # fallout
+      DRM_HYPERV = lib.mkForce unset;
     };
   };
 
