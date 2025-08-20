@@ -185,12 +185,12 @@ rec {
 
       # No old disks
       SCSI = lib.mkForce no;
+      # SCSI_COMMON = lib.mkForce no; # really wants this to be a module 🤷
       ATA = lib.mkForce no;
 
       # No old USB
       USB_OHCI_HCD = lib.mkForce no;
       USB_UHCI_HCD = lib.mkForce no;
-      USB_SERIAL_GENERIC = lib.mkForce no;
 
       # Parallel port
       PARPORT = lib.mkForce no;
@@ -236,6 +236,21 @@ rec {
       FB = lib.mkForce no;
       OLPC = lib.mkForce unset;
       # W1 = lib.mkForce no;
+      X86_POWERNOW_K8 = lib.mkForce unset;
+
+      RAPIDIO = lib.mkForce no;
+
+      # Realtek?
+      RTLWIFI = lib.mkForce unset;
+      RTLWIFI_PCI = lib.mkForce unset;
+
+      # old USB cameras
+      USB_GSPCA = lib.mkForce no;
+
+      # I mean, sure, if I'm consoling into a server rack
+      USB_SERIAL = lib.mkForce no;
+      USB_SERIAL_CONSOLE = lib.mkForce unset;
+      USB_SERIAL_GENERIC = lib.mkForce unset;
     };
   };
 
@@ -251,6 +266,18 @@ rec {
       INFINIBAND = lib.mkForce no;
       ATM = lib.mkForce no;
       IIO = lib.mkForce no;
+      SPEAKUP = lib.mkForce no;
+      # TINYDRM = lib.mkForce no; # already unset
+      RC_LOOPBACK = lib.mkForce no;
+      RC_ATI_REMOTE = lib.mkForce no;
+      RC_XBOX_DVD = lib.mkForce no;
+
+      # said to be for testing only
+      RCU_REF_SCALE_TEST = lib.mkForce no;
+      SCF_TORTURE_TEST = lib.mkForce no;
+      TEST_LOCKUP = lib.mkForce no;
+      TEST_POWER = lib.mkForce no;
+      THERMAL_CORE_TESTING = lib.mkForce no;
     };
   };
 
@@ -321,6 +348,7 @@ rec {
       INTEL_VSEC = lib.mkForce no;
       INTEL_WMI_SBL_FW_UPDATE = lib.mkForce no;
       INTEL_WMI_THUNDERBOLT = lib.mkForce no;
+      X86_SPEEDSTEP_CENTRINO = lib.mkForce no;
     };
   };
 
@@ -1460,79 +1488,151 @@ rec {
     patch = null;
     extraStructuredConfig = with lib.kernel; {
       # REGULATOR_FIXED_VOLTAGE = lib.mkForce no;
-      REGULATOR_VIRTUAL_CONSUMER = lib.mkForce no;
-      REGULATOR_USERSPACE_CONSUMER = lib.mkForce no;
       REGULATOR_88PG86X = lib.mkForce no;
+      REGULATOR_88PM800 = lib.mkForce no;
       REGULATOR_ACT8865 = lib.mkForce no;
+      REGULATOR_ACT8945A = lib.mkForce no;
       REGULATOR_AD5398 = lib.mkForce no;
       REGULATOR_ADP5055 = lib.mkForce no;
+      REGULATOR_ARIZONA_LDO1 = lib.mkForce no;
+      REGULATOR_ARIZONA_MICSUPP = lib.mkForce no;
+      REGULATOR_AS3722 = lib.mkForce no;
+      REGULATOR_ATC260X = lib.mkForce no;
       REGULATOR_AW37503 = lib.mkForce no;
+      REGULATOR_AXP20X = lib.mkForce no;
+      REGULATOR_BCM590XX = lib.mkForce no;
+      REGULATOR_BD71815 = lib.mkForce no;
+      REGULATOR_BD71828 = lib.mkForce no;
+      REGULATOR_BD718XX = lib.mkForce no;
+      REGULATOR_BD9571MWV = lib.mkForce no;
+      REGULATOR_BD957XMUF = lib.mkForce no;
+      REGULATOR_BD96801 = lib.mkForce no;
+      REGULATOR_CPCAP = lib.mkForce no;
+      REGULATOR_CROS_EC = lib.mkForce no;
+      REGULATOR_DA9062 = lib.mkForce no;
+      REGULATOR_DA9063 = lib.mkForce no;
       REGULATOR_DA9121 = lib.mkForce no;
       REGULATOR_DA9210 = lib.mkForce no;
       REGULATOR_DA9211 = lib.mkForce no;
       REGULATOR_FAN53555 = lib.mkForce no;
       REGULATOR_FAN53880 = lib.mkForce no;
       REGULATOR_GPIO = lib.mkForce no;
-      REGULATOR_ISL9305 = lib.mkForce no;
+      REGULATOR_HI6421 = lib.mkForce no;
+      REGULATOR_HI6421V530 = lib.mkForce no;
+      REGULATOR_HI6421V600 = lib.mkForce no;
       REGULATOR_ISL6271A = lib.mkForce no;
+      REGULATOR_ISL9305 = lib.mkForce no;
+      REGULATOR_LM363X = lib.mkForce no;
       REGULATOR_LP3971 = lib.mkForce no;
       REGULATOR_LP3972 = lib.mkForce no;
       REGULATOR_LP872X = lib.mkForce no;
+      REGULATOR_LP873X = lib.mkForce no;
       REGULATOR_LP8755 = lib.mkForce no;
+      REGULATOR_LP87565 = lib.mkForce no;
       REGULATOR_LTC3589 = lib.mkForce no;
       REGULATOR_LTC3676 = lib.mkForce no;
+      REGULATOR_MAX14577 = lib.mkForce no;
       REGULATOR_MAX1586 = lib.mkForce no;
+      REGULATOR_MAX20086 = lib.mkForce no;
+      REGULATOR_MAX20411 = lib.mkForce no;
+      REGULATOR_MAX5970 = lib.mkForce no;
       REGULATOR_MAX77503 = lib.mkForce no;
+      REGULATOR_MAX77541 = lib.mkForce no;
+      REGULATOR_MAX77620 = lib.mkForce no;
+      REGULATOR_MAX77650 = lib.mkForce no;
+      REGULATOR_MAX77686 = lib.mkForce no;
+      REGULATOR_MAX77693 = lib.mkForce no;
+      REGULATOR_MAX77802 = lib.mkForce no;
+      REGULATOR_MAX77826 = lib.mkForce no;
       REGULATOR_MAX77857 = lib.mkForce no;
       REGULATOR_MAX8649 = lib.mkForce no;
       REGULATOR_MAX8660 = lib.mkForce no;
       REGULATOR_MAX8893 = lib.mkForce no;
+      REGULATOR_MAX8907 = lib.mkForce no;
       REGULATOR_MAX8952 = lib.mkForce no;
       REGULATOR_MAX8973 = lib.mkForce no;
-      REGULATOR_MAX20086 = lib.mkForce no;
-      REGULATOR_MAX20411 = lib.mkForce no;
-      REGULATOR_MAX77826 = lib.mkForce no;
+      REGULATOR_MC13783 = lib.mkForce no;
+      REGULATOR_MC13892 = lib.mkForce no;
+      # REGULATOR_MC13XXX_CORE = lib.mkForce no; # unset
       REGULATOR_MCP16502 = lib.mkForce no;
       REGULATOR_MP5416 = lib.mkForce no;
       REGULATOR_MP8859 = lib.mkForce no;
       REGULATOR_MP886X = lib.mkForce no;
       REGULATOR_MPQ7920 = lib.mkForce no;
       REGULATOR_MT6311 = lib.mkForce no;
+      REGULATOR_MT6315 = lib.mkForce no;
+      REGULATOR_MT6323 = lib.mkForce no;
+      REGULATOR_MT6331 = lib.mkForce no;
+      REGULATOR_MT6332 = lib.mkForce no;
+      REGULATOR_MT6357 = lib.mkForce no;
+      REGULATOR_MT6358 = lib.mkForce no;
+      REGULATOR_MT6359 = lib.mkForce no;
+      REGULATOR_MT6360 = lib.mkForce no;
+      REGULATOR_MT6370 = lib.mkForce no;
+      REGULATOR_MT6397 = lib.mkForce no;
+      REGULATOR_PALMAS = lib.mkForce no;
       REGULATOR_PCA9450 = lib.mkForce no;
-      REGULATOR_PF9453 = lib.mkForce no;
       REGULATOR_PF8X00 = lib.mkForce no;
+      REGULATOR_PF9453 = lib.mkForce no;
       REGULATOR_PFUZE100 = lib.mkForce no;
       REGULATOR_PV88060 = lib.mkForce no;
       REGULATOR_PV88080 = lib.mkForce no;
       REGULATOR_PV88090 = lib.mkForce no;
       REGULATOR_PWM = lib.mkForce no;
+      REGULATOR_QCOM_LABIBB = lib.mkForce no;
+      REGULATOR_QCOM_PM8008 = lib.mkForce no;
+      REGULATOR_QCOM_SPMI = lib.mkForce no;
+      REGULATOR_QCOM_USB_VBUS = lib.mkForce no;
       REGULATOR_RAA215300 = lib.mkForce no;
       REGULATOR_RASPBERRYPI_TOUCHSCREEN_ATTINY = lib.mkForce no;
+      REGULATOR_RK808 = lib.mkForce no;
+      REGULATOR_RN5T618 = lib.mkForce no;
+      # REGULATOR_ROHM = lib.mkForce no; # was unset
       REGULATOR_RT4801 = lib.mkForce no;
       REGULATOR_RT4803 = lib.mkForce no;
+      REGULATOR_RT4831 = lib.mkForce no;
+      REGULATOR_RT5033 = lib.mkForce no;
+      REGULATOR_RT5120 = lib.mkForce no;
       REGULATOR_RT5190A = lib.mkForce no;
       REGULATOR_RT5739 = lib.mkForce no;
       REGULATOR_RT5759 = lib.mkForce no;
       REGULATOR_RT6160 = lib.mkForce no;
       REGULATOR_RT6190 = lib.mkForce no;
       REGULATOR_RT6245 = lib.mkForce no;
-      REGULATOR_RTQ2134 = lib.mkForce no;
       REGULATOR_RTMV20 = lib.mkForce no;
-      REGULATOR_RTQ6752 = lib.mkForce no;
+      REGULATOR_RTQ2134 = lib.mkForce no;
       REGULATOR_RTQ2208 = lib.mkForce no;
+      REGULATOR_RTQ6752 = lib.mkForce no;
+      REGULATOR_S2MPA01 = lib.mkForce no;
+      REGULATOR_S2MPS11 = lib.mkForce no;
+      REGULATOR_S5M8767 = lib.mkForce no;
+      REGULATOR_SKY81452 = lib.mkForce no;
       REGULATOR_SLG51000 = lib.mkForce no;
+      REGULATOR_STPMIC1 = lib.mkForce no;
+      REGULATOR_SY7636A = lib.mkForce no;
       REGULATOR_SY8106A = lib.mkForce no;
       REGULATOR_SY8824X = lib.mkForce no;
       REGULATOR_SY8827N = lib.mkForce no;
       REGULATOR_TPS51632 = lib.mkForce no;
+      REGULATOR_TPS6105X = lib.mkForce no;
       REGULATOR_TPS62360 = lib.mkForce no;
       REGULATOR_TPS6286X = lib.mkForce no;
       REGULATOR_TPS6287X = lib.mkForce no;
       REGULATOR_TPS65023 = lib.mkForce no;
       REGULATOR_TPS6507X = lib.mkForce no;
+      REGULATOR_TPS65086 = lib.mkForce no;
       REGULATOR_TPS65132 = lib.mkForce no;
+      REGULATOR_TPS65217 = lib.mkForce no;
+      REGULATOR_TPS65218 = lib.mkForce no;
+      REGULATOR_TPS65219 = lib.mkForce no;
       REGULATOR_TPS6524X = lib.mkForce no;
+      REGULATOR_TPS65912 = lib.mkForce no;
+      REGULATOR_TPS6594 = lib.mkForce no;
+      # REGULATOR_TPS68470 = lib.mkForce no;
+      REGULATOR_USERSPACE_CONSUMER = lib.mkForce no;
       REGULATOR_VCTRL = lib.mkForce no;
+      REGULATOR_VIRTUAL_CONSUMER = lib.mkForce no;
+      REGULATOR_WM8994 = lib.mkForce no;
     };
   };
 
