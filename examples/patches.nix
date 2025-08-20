@@ -27,7 +27,7 @@ rec {
     base-fallout
   ];
 
-  # This set is for the additive workflow, building up from allnoconfig
+  # This set is for the additive workflow, building up from tinyconfig
   # ⚠️ NOT YET WORKING
   addition = [
     streamlined

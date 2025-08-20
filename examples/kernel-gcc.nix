@@ -32,7 +32,7 @@ let
         # enough options to get this running than to whittle down the defaults.  
         # However, it is still a lot and you may miss some that are more important
         # than what you gain by starting from a clean slate.  
-        # defconfig = "allnoconfig LLVM=1 ARCH=x86_64";
+        # defconfig = "tinyconfig LLVM=1 ARCH=x86_64";
 
         # This is the default but kept as a reminder to check generate-config.pl
         # and understand that there is a base config that has default options
@@ -43,7 +43,7 @@ let
   });
 
 in {
-  # Customize the patch set in use for either adding to a allnoconfig or
+  # Customize the patch set in use for either adding to a tinyconfig or
   # subtracting from defconfig
   boot.kernelPatches = with (import ./patches.nix {inherit lib;});
     subtract ++ base;
