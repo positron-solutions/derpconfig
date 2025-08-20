@@ -60,6 +60,165 @@ binary substitution in nixd.
 consumption**.  Run your own scripts.  🙅 Kernel versions add options.  NixOS
 modules change See `make oldconfig`.
 
+Options used are **not** portable.  You **must** set your CPU architecture
+correctly when using `-mtune` and `-march`.  There is a way to adapt the
+`stdenv` to use `-march=native`, which is an impurity, but you can also use the
+compilers inside the shell and just match up with your CPU:
+
+<details>
+<summary>on clang</summary>
+
+```bash
+llc -march=x86 -mattr=help
+Available CPUs for this target:
+
+  alderlake               - Select the alderlake processor.
+  amdfam10                - Select the amdfam10 processor.
+  arrowlake               - Select the arrowlake processor.
+  arrowlake-s             - Select the arrowlake-s processor.
+  arrowlake_s             - Select the arrowlake_s processor.
+  athlon                  - Select the athlon processor.
+  athlon-4                - Select the athlon-4 processor.
+  athlon-fx               - Select the athlon-fx processor.
+  athlon-mp               - Select the athlon-mp processor.
+  athlon-tbird            - Select the athlon-tbird processor.
+  athlon-xp               - Select the athlon-xp processor.
+  athlon64                - Select the athlon64 processor.
+  athlon64-sse3           - Select the athlon64-sse3 processor.
+  atom                    - Select the atom processor.
+  atom_sse4_2             - Select the atom_sse4_2 processor.
+  atom_sse4_2_movbe       - Select the atom_sse4_2_movbe processor.
+  barcelona               - Select the barcelona processor.
+  bdver1                  - Select the bdver1 processor.
+  bdver2                  - Select the bdver2 processor.
+  bdver3                  - Select the bdver3 processor.
+  bdver4                  - Select the bdver4 processor.
+  bonnell                 - Select the bonnell processor.
+  broadwell               - Select the broadwell processor.
+  btver1                  - Select the btver1 processor.
+  btver2                  - Select the btver2 processor.
+  c3                      - Select the c3 processor.
+  c3-2                    - Select the c3-2 processor.
+  cannonlake              - Select the cannonlake processor.
+  cascadelake             - Select the cascadelake processor.
+  clearwaterforest        - Select the clearwaterforest processor.
+  cooperlake              - Select the cooperlake processor.
+  core-avx-i              - Select the core-avx-i processor.
+  core-avx2               - Select the core-avx2 processor.
+  core2                   - Select the core2 processor.
+  core_2_duo_sse4_1       - Select the core_2_duo_sse4_1 processor.
+  core_2_duo_ssse3        - Select the core_2_duo_ssse3 processor.
+  core_2nd_gen_avx        - Select the core_2nd_gen_avx processor.
+  core_3rd_gen_avx        - Select the core_3rd_gen_avx processor.
+  core_4th_gen_avx        - Select the core_4th_gen_avx processor.
+  core_4th_gen_avx_tsx    - Select the core_4th_gen_avx_tsx processor.
+  core_5th_gen_avx        - Select the core_5th_gen_avx processor.
+  core_5th_gen_avx_tsx    - Select the core_5th_gen_avx_tsx processor.
+  core_aes_pclmulqdq      - Select the core_aes_pclmulqdq processor.
+  core_i7_sse4_2          - Select the core_i7_sse4_2 processor.
+  corei7                  - Select the corei7 processor.
+  corei7-avx              - Select the corei7-avx processor.
+  emeraldrapids           - Select the emeraldrapids processor.
+  generic                 - Select the generic processor.
+  geode                   - Select the geode processor.
+  goldmont                - Select the goldmont processor.
+  goldmont-plus           - Select the goldmont-plus processor.
+  goldmont_plus           - Select the goldmont_plus processor.
+  gracemont               - Select the gracemont processor.
+  grandridge              - Select the grandridge processor.
+  graniterapids           - Select the graniterapids processor.
+  graniterapids-d         - Select the graniterapids-d processor.
+  graniterapids_d         - Select the graniterapids_d processor.
+  haswell                 - Select the haswell processor.
+  i386                    - Select the i386 processor.
+  i486                    - Select the i486 processor.
+  i586                    - Select the i586 processor.
+  i686                    - Select the i686 processor.
+  icelake-client          - Select the icelake-client processor.
+  icelake-server          - Select the icelake-server processor.
+  icelake_client          - Select the icelake_client processor.
+  icelake_server          - Select the icelake_server processor.
+  ivybridge               - Select the ivybridge processor.
+  k6                      - Select the k6 processor.
+  k6-2                    - Select the k6-2 processor.
+  k6-3                    - Select the k6-3 processor.
+  k8                      - Select the k8 processor.
+  k8-sse3                 - Select the k8-sse3 processor.
+  knl                     - Select the knl processor.
+  knm                     - Select the knm processor.
+  lakemont                - Select the lakemont processor.
+  lunarlake               - Select the lunarlake processor.
+  meteorlake              - Select the meteorlake processor.
+  mic_avx512              - Select the mic_avx512 processor.
+  nehalem                 - Select the nehalem processor.
+  nocona                  - Select the nocona processor.
+  opteron                 - Select the opteron processor.
+  opteron-sse3            - Select the opteron-sse3 processor.
+  pantherlake             - Select the pantherlake processor.
+  penryn                  - Select the penryn processor.
+  pentium                 - Select the pentium processor.
+  pentium-m               - Select the pentium-m processor.
+  pentium-mmx             - Select the pentium-mmx processor.
+  pentium2                - Select the pentium2 processor.
+  pentium3                - Select the pentium3 processor.
+  pentium3m               - Select the pentium3m processor.
+  pentium4                - Select the pentium4 processor.
+  pentium4m               - Select the pentium4m processor.
+  pentium_4               - Select the pentium_4 processor.
+  pentium_4_sse3          - Select the pentium_4_sse3 processor.
+  pentium_ii              - Select the pentium_ii processor.
+  pentium_iii             - Select the pentium_iii processor.
+  pentium_iii_no_xmm_regs - Select the pentium_iii_no_xmm_regs processor.
+  pentium_m               - Select the pentium_m processor.
+  pentium_mmx             - Select the pentium_mmx processor.
+  pentium_pro             - Select the pentium_pro processor.
+  pentiumpro              - Select the pentiumpro processor.
+  prescott                - Select the prescott processor.
+  raptorlake              - Select the raptorlake processor.
+  rocketlake              - Select the rocketlake processor.
+  sandybridge             - Select the sandybridge processor.
+  sapphirerapids          - Select the sapphirerapids processor.
+  sierraforest            - Select the sierraforest processor.
+  silvermont              - Select the silvermont processor.
+  skx                     - Select the skx processor.
+  skylake                 - Select the skylake processor.
+  skylake-avx512          - Select the skylake-avx512 processor.
+  skylake_avx512          - Select the skylake_avx512 processor.
+  slm                     - Select the slm processor.
+  tigerlake               - Select the tigerlake processor.
+  tremont                 - Select the tremont processor.
+  westmere                - Select the westmere processor.
+  winchip-c6              - Select the winchip-c6 processor.
+  winchip2                - Select the winchip2 processor.
+  x86-64                  - Select the x86-64 processor.
+  x86-64-v2               - Select the x86-64-v2 processor.
+  x86-64-v3               - Select the x86-64-v3 processor.
+  x86-64-v4               - Select the x86-64-v4 processor.
+  yonah                   - Select the yonah processor.
+  znver1                  - Select the znver1 processor.
+  znver2                  - Select the znver2 processor.
+  znver3                  - Select the znver3 processor.
+  znver4                  - Select the znver4 processor.
+  znver5                  - Select the znver5 processor.
+ ```
+
+</details>
+
+<details>
+<summary>on gcc</summary>
+
+```bash
+gcc --target-help
+
+  Known valid arguments for -march= option:
+    i386 i486 i586 pentium lakemont pentium-mmx winchip-c6 winchip2 c3 samuel-2 c3-2 nehemiah c7 esther i686 pentiumpro pentium2 pentium3 pentium3m pentium-m pentium4 pentium4m prescott nocona core2 nehalem corei7 westmere sandybridge corei7-avx ivybridge core-avx-i haswell core-avx2 broadwell skylake skylake-avx512 cannonlake icelake-client rocketlake icelake-server cascadelake tigerlake cooperlake sapphirerapids emeraldrapids alderlake raptorlake meteorlake graniterapids graniterapids-d arrowlake arrowlake-s lunarlake pantherlake bonnell atom silvermont slm goldmont goldmont-plus tremont gracemont sierraforest grandridge clearwaterforest knl knm intel geode k6 k6-2 k6-3 athlon athlon-tbird athlon-4 athlon-xp athlon-mp x86-64 x86-64-v2 x86-64-v3 x86-64-v4 eden-x2 nano nano-1000 nano-2000 nano-3000 nano-x2 eden-x4 nano-x4 lujiazui yongfeng k8 k8-sse3 opteron opteron-sse3 athlon64 athlon64-sse3 athlon-fx amdfam10 barcelona bdver1 bdver2 bdver3 bdver4 znver1 znver2 znver3 znver4 znver5 btver1 btver2 generic native
+
+  Known valid arguments for -mtune= option:
+    generic i386 i486 pentium lakemont pentiumpro pentium4 nocona core2 nehalem sandybridge haswell bonnell silvermont goldmont goldmont-plus tremont sierraforest grandridge clearwaterforest knl knm skylake skylake-avx512 cannonlake icelake-client icelake-server cascadelake tigerlake cooperlake sapphirerapids alderlake rocketlake graniterapids graniterapids-d arrowlake arrowlake-s pantherlake intel lujiazui yongfeng geode k6 athlon k8 amdfam10 bdver1 bdver2 bdver3 bdver4 btver1 btver2 znver1 znver2 znver3 znver4 znver5
+```
+
+</details>
+
 ### Maintenance
 
 Using Kernel customizations **will require re-building** every time you update
