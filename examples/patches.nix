@@ -2525,4 +2525,13 @@ rec {
       WLAN_VENDOR_ZYDAS = yes;
     };
   };
+
+  # Options I don't want turned off on some hardware
+  g14 = {
+    name = "g14";
+    patch = null;
+    extraStructuredConfig = with lib.kernel; {
+      ACPI_TINY_POWER_BUTTON = yes;
+    };
+  };
 }
