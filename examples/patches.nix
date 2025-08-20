@@ -573,10 +573,6 @@ rec {
       CONSOLE_TRANSLATIONS = lib.mkForce yes;
       COREDUMP = lib.mkForce yes;
       CPU_SUP_AMD = lib.mkForce yes;
-      CPU_SUP_CENTAUR = lib.mkForce yes;
-      CPU_SUP_HYGON = lib.mkForce yes;
-      CPU_SUP_INTEL = lib.mkForce yes;
-      CPU_SUP_ZHAOXIN = lib.mkForce yes;
       CRC32 = lib.mkForce yes;
       CRC32_ARCH = lib.mkForce yes;
       CRC_OPTIMIZATIONS = lib.mkForce yes;
