@@ -151,6 +151,15 @@ right there.
 nixos-rebuild boot --print-build-logs
 ```
 
+### Marking and Identifying Your Kernels
+
+Use `cat /proc/version` to see some info about your current kernel.  It always
+includes the compiler info.  Set the `modVersion` to have extra info there.
+```
+Linux version 6.16.0 (nixbld@localhost) (clang version 19.1.7, LLD 19.1.7)
+#1-NixOS SMP PREEMPT_DYNAMIC Sun Jul 27 21:26:38 UTC 2025
+```
+
 ## Adding to `allnoconfig` (Additive approach)
 1. Begin with a `make allnoconfig` that has nothing set
    ```
