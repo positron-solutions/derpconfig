@@ -121,8 +121,10 @@ rec {
       # PREEMPT = yes;
       LRU_GEN = yes;
  
-      MQ_IOSCHED_KYBER = lib.mkDefault no;
-      MQ_IOSCHED_DEADLINE = lib.mkDefault no;
+      MQ_IOSCHED_KYBER = lib.mkForce no;
+      MQ_IOSCHED_DEADLINE = lib.mkForce no;
+
+      # CONFIG_X86_MSR = lib.mkForce yes; # maybe we don't want this
     };
   };
 
@@ -178,6 +180,7 @@ rec {
     extraStructuredConfig = with lib.kernel; {
       # No slow / old filesystems (except boot)
       UDF_FS = lib.mkForce no;
+      JFS_FS = lib.mkForce no;
       EXT2_FS = lib.mkForce no;      
       EXT3_FS = lib.mkForce no;
       GFS2_FS = lib.mkForce no;
@@ -185,6 +188,9 @@ rec {
       BTRFS_FS = lib.mkForce no;
       NILFS2_FS = lib.mkForce no;
       BCACHEFS_FS = lib.mkForce no;
+      ZONEFS_FS = lib.mkForce no;
+      MISC_FILESYSTEMS = lib.mkForce unset;
+      NETWORK_FILESYSTEMS = lib.mkForce no;
 
       # some 3rd party programs may be 32-bit compiled.  But these days, few.
       IA32_EMULATION = lib.mkForce no;
@@ -208,7 +214,10 @@ rec {
       # those images mainly need to be read by your EFI anyway
       ISO9660_FS = lib.mkForce no;
 
+      X86_POWERNOW_K8 = lib.mkForce no;
+      X86_ACPI_CPUFREQ_CPB = lib.mkForce no;
       AMD_NUMA = lib.mkForce no; # old Numa
+      MTTR = lib.mkForce unset;
 
       ATALK = lib.mkForce no;
 
@@ -242,7 +251,7 @@ rec {
       FB = lib.mkForce no;
       OLPC = lib.mkForce unset;
       # W1 = lib.mkForce no;
-      X86_POWERNOW_K8 = lib.mkForce unset;
+      X86_16BIT = lib.mkForce unset;
 
       RAPIDIO = lib.mkForce no;
 
@@ -282,6 +291,12 @@ rec {
       TEST_LOCKUP = lib.mkForce no;
       TEST_POWER = lib.mkForce no;
       THERMAL_CORE_TESTING = lib.mkForce no;
+
+      X86_EXTENDED_PLATFORM = lib.mkForce no;
+
+      CPU_SUP_HYGON = lib.mkForce unset;
+      CPU_SUP_CENTAUR = lib.mkForce unset;
+      CPU_SUP_ZHAOXIN = lib.mkForce unset;
     };
   };
 
@@ -343,7 +358,7 @@ rec {
       INTEL_SOC_PMIC_CHTWC = yes;
       INTEL_SPEED_SELECT_INTERFACE = lib.mkForce no;
       INTEL_TCC_COOLING = lib.mkForce no;
-      INTEL_TDX_GUEST = yes;
+      INTEL_TDX_GUEST = lib.mkForce unset;
       INTEL_THC_HID = lib.mkForce no;
       INTEL_TURBO_MAX_3 = yes;
       INTEL_TXT = lib.mkForce no;
@@ -352,7 +367,14 @@ rec {
       INTEL_VSEC = lib.mkForce no;
       INTEL_WMI_SBL_FW_UPDATE = lib.mkForce no;
       INTEL_WMI_THUNDERBOLT = lib.mkForce no;
+
+      X86_P4_CLOCKMOD = lib.mkForce no;
       X86_SPEEDSTEP_CENTRINO = lib.mkForce no;
+      X86_MCE_INTEL = lib.mkForce no;
+      X86_SGX = lib.mkForce no;
+      X86_INTEL_PSTATE = lib.mkForce unset;
+
+      CPU_SUP_INTEL = lib.mkForce unset;
     };
   };
 
@@ -377,6 +399,15 @@ rec {
       CRYPTO_LZ4HC = lib.mkForce no;
       CRYPTO_BLOWFISH = lib.mkForce no;
       CRYPTO_BLOWFISH_X86_64 = lib.mkForce no;
+      CRYPTO_DES = lib.mkForce no;
+      CRYPTO_FCRYPT = lib.mkForce no;
+      CRYPTO_KHAZAD = lib.mkForce no;
+      CRYPTO_ANUBIS = lib.mkForce no;
+      # Seem to have some dependents that need disabling
+      # CRYPTO_CAMELLIA = lib.mkForce no;
+      # CRYPTO_SERPENT = lib.mkForce no;
+      CRYPTO_TEA = lib.mkForce no;
+      CRYPTO_TWOFISH = lib.mkForce no;
     };
   };
 
@@ -1166,6 +1197,8 @@ rec {
       DEBUG_VM_PGTABLE = lib.mkForce no;
       DEBUG_WQ_FORCE_RR_CPU = lib.mkForce no;
       DEBUG_WW_MUTEX_SLOWPATH = lib.mkForce no;
+
+      X86_MCE_INJECT = lib.mkForce no;
     };
   };
 
