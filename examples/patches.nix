@@ -270,6 +270,57 @@ rec {
     patch = null;
     extraStructuredConfig = with lib.kernel; {
       X86_INTEL_LPSS = lib.mkForce no;
+
+      INTEL_ATOMISP2_PM = lib.mkForce no;
+      INTEL_BYTCRC_PWRSRC = lib.mkForce no;
+      INTEL_CHTDC_TI_PWRBTN = lib.mkForce no;
+      INTEL_HFI_THERMAL = yes;
+      INTEL_HID_EVENT = lib.mkForce no;
+      INTEL_IDLE = yes;
+      INTEL_IDMA64 = lib.mkForce no;
+      INTEL_IDXD = lib.mkForce no;
+      INTEL_IDXD_COMPAT = lib.mkForce no;
+      INTEL_IFS = lib.mkForce no;
+      INTEL_INT0002_VGPIO = lib.mkForce no;
+      INTEL_IOATDMA = lib.mkForce no;
+      # INTEL_IOMMU = module; # unused
+      INTEL_IOMMU_DEFAULT_ON = lib.mkForce no;
+      INTEL_IOMMU_FLOPPY_WA = yes;
+      INTEL_IOMMU_PERF_EVENTS = yes;
+      INTEL_IOMMU_SCALABLE_MODE_DEFAULT_ON = yes;
+      INTEL_IOMMU_SVM = lib.mkForce no;
+      INTEL_IPS = lib.mkForce no;
+      INTEL_ISH_HID = lib.mkForce no;
+      INTEL_LDMA = lib.mkForce no;
+      INTEL_MEI = lib.mkForce no;
+      INTEL_OAKTRAIL = lib.mkForce no;
+      INTEL_OC_WATCHDOG = lib.mkForce no;
+      INTEL_PCH_THERMAL = lib.mkForce no;
+      INTEL_POWERCLAMP = lib.mkForce no;
+      INTEL_PUNIT_IPC = lib.mkForce no;
+      INTEL_RAPL = module;
+      INTEL_RAPL_CORE = module;
+      INTEL_RST = lib.mkForce no;
+      INTEL_SAR_INT1092 = lib.mkForce no;
+      INTEL_SCU_PCI = lib.mkForce no;
+      INTEL_SCU_PLATFORM = lib.mkForce no;
+      INTEL_SKL_INT3472 = lib.mkForce no;
+      INTEL_SMARTCONNECT = lib.mkForce no;
+      INTEL_SOC_DTS_THERMAL = lib.mkForce no;
+      INTEL_SOC_PMIC = yes;
+      INTEL_SOC_PMIC_CHTDC_TI = yes;
+      INTEL_SOC_PMIC_CHTWC = yes;
+      INTEL_SPEED_SELECT_INTERFACE = lib.mkForce no;
+      INTEL_TCC_COOLING = lib.mkForce no;
+      INTEL_TDX_GUEST = yes;
+      INTEL_THC_HID = lib.mkForce no;
+      INTEL_TURBO_MAX_3 = yes;
+      INTEL_TXT = lib.mkForce no;
+      INTEL_UNCORE_FREQ_CONTROL = lib.mkForce no;
+      INTEL_VBTN = lib.mkForce no;
+      INTEL_VSEC = lib.mkForce no;
+      INTEL_WMI_SBL_FW_UPDATE = lib.mkForce no;
+      INTEL_WMI_THUNDERBOLT = lib.mkForce no;
     };
   };
 
