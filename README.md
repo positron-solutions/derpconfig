@@ -208,6 +208,10 @@ enough information before being built for us to simply consume `lspci` and
 `lsusb` etc.
 
 ## Adding to `tinyconfig` (Additive approach)
+
+⚠️ This is still under development and I have not actually attempted runnig a
+`tinyconfig` yet!
+
 1. Begin with a `make tinyconfig` that has only the bare minimum set
    ```
    make ARCH=x86_64 LLVM=1 tinyconfig

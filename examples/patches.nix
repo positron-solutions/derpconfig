@@ -376,8 +376,8 @@ rec {
     };
   };
 
-  # This is a result of running the streamline perl script.  Only about 400
-  # lines!  Well, that's a lot, but a lot less than the defaults!
+  # ⚠️ This is a result of running the streamline perl script.  It likely will not
+  # pass config, but is left as an example of the output!
   streamlined = {
     name = "streamlined";
     patch = null;
@@ -851,7 +851,6 @@ rec {
       VT = lib.mkForce yes;
       VT_CONSOLE = lib.mkForce yes;
       X86 = lib.mkForce yes;
-      X86_16BIT = lib.mkForce yes;
       X86_64 = lib.mkForce yes;
       X86_CMOV = lib.mkForce yes;
       X86_CX8 = lib.mkForce yes;
