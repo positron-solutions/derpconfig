@@ -13,7 +13,6 @@ rec {
   # separating out choices that every kernel should have
   base = [
     user-friendly
-    custom
     small
     zstd-all
     no-sec
@@ -2530,7 +2529,9 @@ rec {
     name = "g14";
     patch = null;
     extraStructuredConfig = with lib.kernel; {
-      ACPI_TINY_POWER_BUTTON = yes;
+      # ACPI_TINY_POWER_BUTTON = yes; # reports already set
+      NR_CPUS = lib.mkForce (freeform "16");
+      CPU_SUP_AMD = lib.mkForce yes;
     };
   };
 }

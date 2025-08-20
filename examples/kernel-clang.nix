@@ -58,9 +58,9 @@ in {
   # Customize the patch set in use for either adding to a tinyconfig or
   # subtracting from defconfig
   boot.kernelPatches = with (import ./patches.nix {inherit lib;});
-    subtract ++ base;
+    subtract ++ base ++ [ custom g14 ];
   # boot.kernelPatches = with (import ./patches.nix {inherit lib;});
-  #   addition ++ base;
+  #   addition ++ base ++ [ custom g14 ];
 
   nixpkgs.overlays = [ kernelOverlay ];
   boot.kernelPackages = pkgs.linuxPackages_latest;
