@@ -2538,23 +2538,30 @@ rec {
     patch = null;
     extraStructuredConfig = with lib.kernel; {
       WLAN_VENDOR_ADMTEK = yes;
-      WLAN_VENDOR_ATH = yes;
-      WLAN_VENDOR_ATMEL = yes;
-      WLAN_VENDOR_BROADCOM = yes;
+      WLAN_VENDOR_ATH = lib.mkForce no;
+      WLAN_VENDOR_ATMEL = lib.mkForce no;
+      WLAN_VENDOR_BROADCOM = lib.mkForce no;
       WLAN_VENDOR_INTEL = yes;
-      WLAN_VENDOR_INTERSIL = yes;
-      WLAN_VENDOR_MARVELL = yes;
-      WLAN_VENDOR_MEDIATEK = yes;
-      WLAN_VENDOR_MICROCHIP = yes;
-      WLAN_VENDOR_PURELIFI = yes;
-      WLAN_VENDOR_QUANTENNA = yes;
-      WLAN_VENDOR_RALINK = yes;
-      WLAN_VENDOR_REALTEK = yes;
-      WLAN_VENDOR_RSI = yes;
-      WLAN_VENDOR_SILABS = yes;
-      WLAN_VENDOR_ST = yes;
-      WLAN_VENDOR_TI = yes;
-      WLAN_VENDOR_ZYDAS = yes;
+      WLAN_VENDOR_INTERSIL = lib.mkForce no;
+      WLAN_VENDOR_MARVELL = lib.mkForce no;
+      WLAN_VENDOR_MEDIATEK = lib.mkForce no;
+      WLAN_VENDOR_MICROCHIP = lib.mkForce no;
+      WLAN_VENDOR_PURELIFI = lib.mkForce no;
+      WLAN_VENDOR_QUANTENNA = lib.mkForce no;
+      WLAN_VENDOR_RALINK = lib.mkForce no;
+      WLAN_VENDOR_REALTEK = lib.mkForce no;
+      WLAN_VENDOR_RSI = lib.mkForce no;
+      WLAN_VENDOR_SILABS = lib.mkForce no;
+      WLAN_VENDOR_ST = lib.mkForce no;
+      WLAN_VENDOR_TI = lib.mkForce no;
+      WLAN_VENDOR_ZYDAS = lib.mkForce no;
+
+      # fallout
+      RT2800USB_RT53XX = lib.mkForce unset;
+      RT2800USB_RT55XX = lib.mkForce unset;
+      RTW88 = lib.mkForce unset;
+      RTW88_8822BE = lib.mkForce unset;
+      RTW88_8822CE = lib.mkForce unset;
     };
   };
 
