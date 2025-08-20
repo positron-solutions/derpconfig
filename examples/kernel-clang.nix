@@ -11,6 +11,7 @@ let
   kernelOverlay = (final: prev: {
     linuxPackages_latest = prev.linuxPackages_latest.extend (kfinal: kprev: {
       kernel = (kprev.kernel.override {
+        name = "linux-kernel-clang";
         modDirVersion = "6.16.0-Clang";
         extraMakeFlags = [
           "KCFLAGS+=-O3"

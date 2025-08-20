@@ -105,7 +105,9 @@ A modern regex:
 
 ### Fixing Up Dependent Options
 
-During rebuild, NixOS runs a script that will identify unused options.  That
+During rebuild, NixOS runs a [perl
+script](https://github.com/NixOS/nixpkgs/blob/master/pkgs/os-specific/linux/kernel/generate-config.pl)
+that will identify unused options.  That
 were disabled as a result of the ones you selected.  Just add them to the pile
 2-3 times and you will have reached a stable fixed point.  See the
 `localmod-fallout` patch in [examples/patches.nix](examples/patches.nix).
@@ -133,8 +135,11 @@ activate:
 make KCONFIG_CONFIG=./reduced menuconfig
 ```
 
-Be sure to use `LLVM=1` on **all** commands when doing work with LLVM.
-The outputs will default to GCC selections if you do not.
+ℹ️ Be sure to use `LLVM=1` on **all** commands when doing work with LLVM.  The
+outputs will default to GCC selections if you do not.
+
+Some useful commands include the streamline script and the merge config script,
+all under the scripts directory in your kernel source.
 
 ### Print Build Logs
 
@@ -216,9 +221,8 @@ turn off.  There are easily 2k options you will want to get rid of at least.
 - NixOS modules that encompass the choices better
 - Upstream patches to nixpkgs to enable more flexible generic Linux kernel
 - Many kernel modules are only likely to be used in rare cases and would
-  actually be better of compiled with `-Oz` or even compiled on demand (see
+  actually be better of compiled with `-Os` or even compiled on demand (see
   below)
-- Injecting some uname info, such as with `modDirVersion`
 
 ## Future Directions
 

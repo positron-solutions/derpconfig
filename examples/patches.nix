@@ -1060,6 +1060,7 @@ rec {
       VGA_SWITCHEROO = lib.mkForce unset;
       VIDEO_V4L1 = lib.mkForce unset;
       VME = lib.mkForce unset;
+      TPS68470_PMIC_OPREGION = lib.mkForce unset; # PC Load letter?
     };
   };
 
@@ -2396,13 +2397,14 @@ rec {
       VIDEO_MSP3400 = module;
       VIDEO_SAA711X = module;
       VIDEO_WM8775 = module;
+
     };
   };
 
   localmod-unused-wifi = {
     name = "localmod-unused-wifi";
     patch = null;
-    extraStructuredConfig = with lib.kernel {
+    extraStructuredConfig = with lib.kernel; {
       WLAN_VENDOR_ADMTEK = yes;
       WLAN_VENDOR_ATH = yes;
       WLAN_VENDOR_ATMEL = yes;

@@ -4,6 +4,7 @@ let
   kernelOverlay = (final: prev: {
     linuxPackages_latest = prev.linuxPackages_latest.extend (kfinal: kprev: {
       kernel = (kprev.kernel.override {
+        name = "linux-kernel-gcc";
         modDirVersion = "6.16.0-gcc-O3";
         extraMakeFlags = [
           # Gcc flags.
