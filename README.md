@@ -46,11 +46,11 @@ binary substitution in nixd.
 - [examples/patches.nix](examples/patches.nix) demonstrates what
   mass-deactivation looks like. (the alternative is setting `defconfig` to
   `"tinyconfig"`  and adding from scratch along with NixOS defaults).
-- [examples/kernel-llvm.nix](examples/kernel-llvm.nix) contains an example
+- [examples/kernel-clang.nix](examples/kernel-clang.nix) contains an example
   kernel configuration building with LLVM and clang.  **The nvidia kernel module
   must be derived from your kernel** as shown **and included into your kernel
   modules** or problems are easy to run into.
-- [examples/tinyboot.nix](examples/tinyboot.nix) shows how to deal with a
+- [examples/tiny-boot.nix](examples/tiny-boot.nix) shows how to deal with a
   relatively small boot partition, reducing the initrd and maximally compressing
   the kernel (requires almost no time to save a little disk space).
 
