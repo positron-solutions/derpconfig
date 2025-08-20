@@ -22,6 +22,7 @@ rec {
     no-fun
     no-intel
     no-unused-crypto
+    not-vm
 
     base-fallout
   ];
@@ -138,10 +139,16 @@ rec {
     patch = null;
     extraStructuredConfig = with lib.kernel; {
       KVM = lib.mkForce no;
-      HYPERV = lib.mkForce no;
+      KVM_GUEST = lib.mkForce unset;
+      MOUSE_PS2_VMMOUSE = lib.mkForce unset;
+      # XEN = unset;
+      HYPERV = unset;
+      PARAVIRT_TIME_ACCOUNTING = lib.mkForce unset;
+      HYPERVISOR_GUEST = lib.mkForce no;
 
       # fallout
       DRM_HYPERV = lib.mkForce unset;
+      TDX_GUEST_DRIVER = lib.mkForce unset;
     };
   };
 
@@ -257,8 +264,6 @@ rec {
     name = "no-rare";
     patch = null;
     extraStructuredConfig = with lib.kernel; {
-      XEN = lib.mkForce no;
-      # HYPER_V = no;
       SURFACE_PLATFORMS = no;
       FIREWIRE = lib.mkForce no;
       MACINTOSH_DRIVERS = no;
