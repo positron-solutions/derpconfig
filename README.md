@@ -339,9 +339,12 @@ perl script to perhaps adapt.
   save a lot of time on rebuilds
 - If the config itself was a derivation, we could more easily inspect the result
   without building an entire kernel! (can we do this already?)
-- The NixOS kernel config respects *some* config options but is extremely eager
-  to turn on unnecessary options, symptomatic of being intended for mass
-  consumption of a vanilla kernel rather than cooperative settings in NixOS.
+- The NixOS kernel's common config respects *some* config options but is
+  extremely eager to turn on unnecessary options, symptomatic of being intended
+  for mass consumption of a vanilla kernel rather than cooperative settings in
+  NixOS.
+- NixOS common config cannot pass its own perl script against tinyconfig, so
+  much of our configuration dependencies are possibly coming form defconfig.
 
 ## Future Directions
 
