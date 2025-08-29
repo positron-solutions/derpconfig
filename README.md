@@ -463,6 +463,10 @@ perl script to perhaps adapt.
 - [structured
   configuration](https://github.com/NixOS/nixpkgs/blob/master/lib/kernel.nix)
   options
+- [kernels](https://github.com/NixOS/nixpkgs/blob/master/pkgs/top-level/linux-kernels.nix)
+  and `kernelPackagesFor` derivations that are `extensible` and are the
+  foundation of creating sets that are both recursively defined and can be
+  modified.
   
 ### Certain Infamous Drivers
 - Nvidia [drivers](https://github.com/NixOS/nixpkgs/blob/master/pkgs/os-specific/linux/nvidia-x11/generic.nix)
