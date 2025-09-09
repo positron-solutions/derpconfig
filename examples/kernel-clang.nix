@@ -8,49 +8,70 @@ let
       pkgs.lld
     ];
 
-  kernelOverlay = (final: prev: {
-    linuxPackages_latest = prev.linuxPackages_latest.extend (kfinal: kprev: {
-      kernel = (kprev.kernel.override {
-        name = "linux-kernel-clang";
-        modDirVersion = "6.16.0-Clang";
-        extraMakeFlags = [
-          "KCFLAGS+=-O3"
-          "KCFLAGS+=-mtune=znver2"
-          "KCFLAGS+=-march=znver2"
-          "KCFLAGS+=-Wno-unused-command-line-argument"
-          "CC=${pkgs.llvmPackages.clang-unwrapped}/bin/clang"
-          "AR=${pkgs.llvm}/bin/llvm-ar"
-          "NM=${pkgs.llvm}/bin/llvm-nm"
-          "LD=${pkgs.lld}/bin/ld.lld"
-          "LLVM=1"
+  kernel = pkgs.linuxKernel.kernels.linux_6_16.override {
+    name = "linux-kernel-clang";
+    modDirVersion = "6.16.0-Clang";
+    extraMakeFlags = [
+      "KCFLAGS+=-O3"
+      "KCFLAGS+=-mtune=znver2"
+      "KCFLAGS+=-march=znver2"
+      "KCFLAGS+=-Wno-unused-command-line-argument"
+      "CC=${pkgs.llvmPackages.clang-unwrapped}/bin/clang"
+      "AR=${pkgs.llvm}/bin/llvm-ar"
+      "NM=${pkgs.llvm}/bin/llvm-nm"
+      "LD=${pkgs.lld}/bin/ld.lld"
+      "LLVM=1"
 
-          # For debugging builds.  Higher numbers available.
-          # "KCFLAGS+=V=1"
-          # "KCFLAGS+=W=1"
-        ];
+      # For debugging builds.  Higher numbers available.
+      # "KCFLAGS+=V=1"
+      # "KCFLAGS+=W=1"
+    ];
 
-        stdenv = llvmKernelStdenv;
+    stdenv = llvmKernelStdenv;
 
-        # Config generation failing usually corresponds to your config begin edited
-        # in the output due to the incompatible options and therefore also failing.
-        # ignoreConfigErrors = true;
-       
-        # Start with an all-no config.  It is slightly easiler to pull together
-        # enough options to get this running than to whittle down the defaults.  
-        # However, it is still a lot and you may miss some that are more important
-        # than what you gain by starting from a clean slate.  
-        # defconfig = "tinyconfig LLVM=1 ARCH=x86_64";
+    # Config generation failing usually corresponds to your config begin edited
+    # in the output due to the incompatible options and thzerefore also failing.
+    # ignoreConfigErrors = true;
 
-        # Be sure to always use defaults compatible with the intended host
-        defconfig = "defconfig LLVM=1 ARCH=x86_64";
+    # Start with an all-no config.  It is slightly easiler to pull together
+    # enough options to get this running than to whittle down the defaults.
+    # However, it is still a lot and you may miss some that are more important
+    # than what you gain by starting from a clean slate.
+    # defconfig = "tinyconfig LLVM=1 ARCH=x86_64";
 
-        structuredExtraConfig = with lib.kernel; {
-          CC_IS_CLANG = lib.mkForce yes;
-          LTO = lib.mkForce yes;
-          LTO_CLANG = lib.mkForce yes;
-          LTO_CLANG_THIN = lib.mkForce yes;
-        };
+    # Be sure to always use defaults compatible with the intended host
+    defconfig = "defconfig LLVM=1 ARCH=x86_64";
+
+    structuredExtraConfig = with lib.kernel; {
+      CC_IS_CLANG = lib.mkForce yes;
+      LTO = lib.mkForce yes;
+      LTO_CLANG = lib.mkForce yes;
+      LTO_CLANG_THIN = lib.mkForce yes;
+    };
+  };
+
+  # What may need to actually happen here is swapping kernel dependents back to
+  # seeing the normal GCC toolchain.  It is likely that these programs rely on
+  # the headers and ABI compatibility but not which compiler was used.  The
+  # kernel stdenv is used to build the linuxPackagesFor.  We should just change
+  # that back to GCC for dependents to try this theory out.  In the meantime,
+  # this overrides the individual packages I need working now.
+  linuxPackages_custom =  (pkgs.linuxPackagesFor kernel).extend (kfinal: kprev: {
+    # Perf depends on systemtap's stapBuild derivation, which fails possibly due
+    # to use of Clang
+    systemtap = kprev.systemtap.overrideAttrs (old: {
+      stapBuild = old.stapBuild.overrideAttrs (oldStap: {
+        configureFlags = (oldStap.configureFlags or []) ++ [ "--disable-Werror" ];
       });
+    });
+
+    # TODO this builds.  It runs.  It works.  But it is suspect to be building
+    # perf with gcc when the kernel is built with Clang?
+    perf = kprev.perf.overrideAttrs (old: {
+      makeFlags = (old.makeFlags or []) ++ [
+        # Just build it with GCC..
+        "CC=${pkgs.stdenv.cc}/bin/gcc"
+      ];
     });
   });
 
@@ -62,8 +83,7 @@ in {
   # boot.kernelPatches = with (import ./patches.nix {inherit lib;});
   #   addition ++ base ++ [ custom g14 ];
 
-  nixpkgs.overlays = [ kernelOverlay ];
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.kernelPackages = linuxPackages_custom;
 
   # This override could be a lot simpler with some upstream changes and the
   # manual inclusion of the kernel module farther below would be a lot simpler.
