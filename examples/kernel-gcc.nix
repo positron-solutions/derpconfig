@@ -5,7 +5,7 @@ let
     linuxPackages_latest = prev.linuxPackages_latest.extend (kfinal: kprev: {
       kernel = (kprev.kernel.override {
         name = "linux-kernel-gcc";
-        modDirVersion = "6.16.0-gcc-O3";
+        modDirVersion = "6.19.0-gcc-O3";
         extraMakeFlags = [
           # Gcc flags.
           # These are CPU-dependent and allow slightly better ordering of things

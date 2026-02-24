@@ -8,9 +8,9 @@ let
       pkgs.lld
     ];
 
-  kernel = pkgs.linuxKernel.kernels.linux_6_16.override {
+  kernel = pkgs.linuxKernel.kernels.linux_6_19.override {
     name = "linux-kernel-clang";
-    modDirVersion = "6.16.0-Clang";
+    modDirVersion = "6.19.0-Clang";
     extraMakeFlags = [
       "KCFLAGS+=-O3"
       "KCFLAGS+=-mtune=znver2"
