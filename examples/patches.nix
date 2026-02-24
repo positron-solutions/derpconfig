@@ -125,6 +125,7 @@ rec {
       MQ_IOSCHED_DEADLINE = lib.mkForce no;
 
       # CONFIG_X86_MSR = lib.mkForce yes; # maybe we don't want this
+      RUST_FW_LOADER_ABSTRACTIONS = lib.mkForce unset;
     };
   };
 
@@ -143,8 +144,8 @@ rec {
       KVM = lib.mkForce no;
       KVM_GUEST = lib.mkForce unset;
       MOUSE_PS2_VMMOUSE = lib.mkForce unset;
-      # XEN = unset;
-      HYPERV = unset;
+      XEN = lib.mkForce unset;
+      HYPERV = lib.mkForce unset;
       PARAVIRT_TIME_ACCOUNTING = lib.mkForce unset;
       HYPERVISOR_GUEST = lib.mkForce no;
 
@@ -182,12 +183,12 @@ rec {
       UDF_FS = lib.mkForce no;
       JFS_FS = lib.mkForce no;
       EXT2_FS = lib.mkForce no;      
-      EXT3_FS = lib.mkForce no;
+      # EXT3_FS = lib.mkForce no;
       GFS2_FS = lib.mkForce no;
       OCFS2_FS = lib.mkForce no;
       BTRFS_FS = lib.mkForce no;
       NILFS2_FS = lib.mkForce no;
-      BCACHEFS_FS = lib.mkForce no;
+      # BCACHEFS_FS = lib.mkForce no;
       ZONEFS_FS = lib.mkForce no;
       MISC_FILESYSTEMS = lib.mkForce unset;
       NETWORK_FILESYSTEMS = lib.mkForce no;
@@ -331,7 +332,7 @@ rec {
       INTEL_IOATDMA = lib.mkForce no;
       # INTEL_IOMMU = module; # unused
       INTEL_IOMMU_DEFAULT_ON = lib.mkForce no;
-      INTEL_IOMMU_FLOPPY_WA = yes;
+      # INTEL_IOMMU_FLOPPY_WA = yes;
       INTEL_IOMMU_PERF_EVENTS = yes;
       INTEL_IOMMU_SCALABLE_MODE_DEFAULT_ON = yes;
       INTEL_IOMMU_SVM = lib.mkForce no;
@@ -1119,6 +1120,10 @@ rec {
       VIDEO_V4L1 = lib.mkForce unset;
       VME = lib.mkForce unset;
       TPS68470_PMIC_OPREGION = lib.mkForce unset; # PC Load letter?
+
+      ATH10K_DFS_CERTIFIED = lib.mkForce unset;
+      ATH9K_AHB = lib.mkForce unset;
+
     };
   };
 
@@ -1149,7 +1154,7 @@ rec {
       DEBUG_FORCE_FUNCTION_ALIGN_64B = lib.mkForce no;
       DEBUG_FORCE_WEAK_PER_CPU = lib.mkForce no;
       DEBUG_FS_ALLOW_NONE = lib.mkForce no;
-      DEBUG_FS_DISALLOW_MOUNT = lib.mkForce no;
+      # DEBUG_FS_DISALLOW_MOUNT = lib.mkForce no;
       DEBUG_GPIO = lib.mkForce no;
       DEBUG_INFO_COMPRESSED_ZLIB = lib.mkForce no;
       DEBUG_INFO_DWARF4 = lib.mkForce no;
@@ -1178,7 +1183,7 @@ rec {
       DEBUG_PLIST = lib.mkForce no;
       DEBUG_PREEMPT = lib.mkForce no;
       DEBUG_RODATA_TEST = lib.mkForce no;
-      DEBUG_RSEQ = lib.mkForce no;
+      # DEBUG_RSEQ = lib.mkForce no;
       DEBUG_RT_MUTEXES = lib.mkForce no;
       DEBUG_RWSEMS = lib.mkForce no;
       DEBUG_SG = lib.mkForce no;
@@ -1219,7 +1224,7 @@ rec {
       GPIO_74X164 = lib.mkForce no;
       GPIO_74XX_MMIO = lib.mkForce no;
       GPIO_ADNP = lib.mkForce no;
-      GPIO_AGGREGATOR = lib.mkForce no;
+      # GPIO_AGGREGATOR = lib.mkForce no;
       GPIO_ALTERA = lib.mkForce no;
       GPIO_AMD8111 = lib.mkForce no;
       GPIO_AMDPT = lib.mkForce no;
@@ -1616,7 +1621,7 @@ rec {
       REGULATOR_QCOM_SPMI = lib.mkForce no;
       REGULATOR_QCOM_USB_VBUS = lib.mkForce no;
       REGULATOR_RAA215300 = lib.mkForce no;
-      REGULATOR_RASPBERRYPI_TOUCHSCREEN_ATTINY = lib.mkForce no;
+      # REGULATOR_RASPBERRYPI_TOUCHSCREEN_ATTINY = lib.mkForce no;
       REGULATOR_RK808 = lib.mkForce no;
       REGULATOR_RN5T618 = lib.mkForce no;
       # REGULATOR_ROHM = lib.mkForce no; # was unset
@@ -1952,7 +1957,7 @@ rec {
       SND_ASIHPI = lib.mkForce no;
       SND_ATIIXP = lib.mkForce no;
       SND_ATIIXP_MODEM = lib.mkForce no;
-      SND_ATMEL_SOC = lib.mkForce no;
+      # SND_ATMEL_SOC = lib.mkForce no;
       SND_AU8810 = lib.mkForce no;
       SND_AU8820 = lib.mkForce no;
       SND_AU8830 = lib.mkForce no;
@@ -1989,7 +1994,7 @@ rec {
       SND_HDA_CODEC_CIRRUS = lib.mkForce no;
       SND_HDA_CODEC_CMEDIA = lib.mkForce no;
       SND_HDA_CODEC_CONEXANT = lib.mkForce no;
-      SND_HDA_CODEC_CS8409 = lib.mkForce no;
+      SND_HDA_CODEC_CS8409 = lib.mkForce unset;
       SND_HDA_CODEC_SENARYTECH = lib.mkForce no;
       SND_HDA_CODEC_SI3054 = lib.mkForce no;
       SND_HDA_CODEC_SIGMATEL = lib.mkForce no;
@@ -2049,7 +2054,7 @@ rec {
       SND_SOC_ADAU7002 = lib.mkForce no;
       SND_SOC_ADAU7118_HW = lib.mkForce no;
       SND_SOC_ADAU7118_I2C = lib.mkForce no;
-      SND_SOC_ADI = lib.mkForce no;
+      # SND_SOC_ADI = lib.mkForce no;
       SND_SOC_AK4104 = lib.mkForce no;
       SND_SOC_AK4118 = lib.mkForce no;
       SND_SOC_AK4375 = lib.mkForce no;
@@ -2092,15 +2097,15 @@ rec {
       SND_SOC_CS35L45_I2C = lib.mkForce no;
       SND_SOC_CS35L45_SPI = lib.mkForce no;
       SND_SOC_CS35L56_I2C = lib.mkForce no;
-      SND_SOC_CS35L56_SDW = lib.mkForce no;
-      SND_SOC_CS35L56_SPI = lib.mkForce no;
+      # SND_SOC_CS35L56_SDW = lib.mkForce no;
+      # SND_SOC_CS35L56_SPI = lib.mkForce no;
       SND_SOC_CS4234 = lib.mkForce no;
       SND_SOC_CS4265 = lib.mkForce no;
       SND_SOC_CS4270 = lib.mkForce no;
       SND_SOC_CS4271_I2C = lib.mkForce no;
       SND_SOC_CS4271_SPI = lib.mkForce no;
       SND_SOC_CS42L42 = lib.mkForce no;
-      SND_SOC_CS42L42_SDW = lib.mkForce no;
+      # SND_SOC_CS42L42_SDW = lib.mkForce no;
       SND_SOC_CS42L51_I2C = lib.mkForce no;
       SND_SOC_CS42L52 = lib.mkForce no;
       SND_SOC_CS42L56 = lib.mkForce no;
@@ -2116,7 +2121,7 @@ rec {
       SND_SOC_CS53L30 = lib.mkForce no;
       SND_SOC_CX2072X = lib.mkForce no;
       SND_SOC_DA7213 = lib.mkForce no;
-      SND_SOC_DMIC = lib.mkForce no;
+      # SND_SOC_DMIC = lib.mkForce no;
       SND_SOC_ES7134 = lib.mkForce no;
       SND_SOC_ES7241 = lib.mkForce no;
       SND_SOC_ES8311 = lib.mkForce no;
@@ -2150,9 +2155,9 @@ rec {
       SND_SOC_MAX98088 = lib.mkForce no;
       SND_SOC_MAX98090 = lib.mkForce no;
       # SND_SOC_MAX98357A = lib.mkForce no; stupid option merging
-      SND_SOC_MAX98363 = lib.mkForce no;
-      SND_SOC_MAX98373_I2C = lib.mkForce no;
-      SND_SOC_MAX98373_SDW = lib.mkForce no;
+      # SND_SOC_MAX98363 = lib.mkForce no;
+      # SND_SOC_MAX98373_I2C = lib.mkForce no;
+      # SND_SOC_MAX98373_SDW = lib.mkForce no;
       SND_SOC_MAX98388 = lib.mkForce no;
       SND_SOC_MAX98390 = lib.mkForce no;
       SND_SOC_MAX98396 = lib.mkForce no;
@@ -2191,24 +2196,24 @@ rec {
       SND_SOC_PCM6240 = lib.mkForce no;
       SND_SOC_PEB2466 = lib.mkForce no;
       SND_SOC_RT1017_SDCA_SDW = lib.mkForce no;
-      SND_SOC_RT1308_SDW = lib.mkForce no;
-      SND_SOC_RT1316_SDW = lib.mkForce no;
-      SND_SOC_RT1318_SDW = lib.mkForce no;
-      SND_SOC_RT1320_SDW = lib.mkForce no;
+      # SND_SOC_RT1308_SDW = lib.mkForce no;
+      # SND_SOC_RT1316_SDW = lib.mkForce no;
+      # SND_SOC_RT1318_SDW = lib.mkForce no;
+      # SND_SOC_RT1320_SDW = lib.mkForce no;
       SND_SOC_RT5616 = lib.mkForce no;
       SND_SOC_RT5631 = lib.mkForce no;
       SND_SOC_RT5640 = lib.mkForce no;
       SND_SOC_RT5659 = lib.mkForce no;
-      SND_SOC_RT5682_SDW = lib.mkForce no;
-      SND_SOC_RT700_SDW = lib.mkForce no;
-      SND_SOC_RT711_SDCA_SDW = lib.mkForce no;
-      SND_SOC_RT711_SDW = lib.mkForce no;
-      SND_SOC_RT712_SDCA_DMIC_SDW = lib.mkForce no;
-      SND_SOC_RT712_SDCA_SDW = lib.mkForce no;
-      SND_SOC_RT715_SDCA_SDW = lib.mkForce no;
-      SND_SOC_RT715_SDW = lib.mkForce no;
-      SND_SOC_RT721_SDCA_SDW = lib.mkForce no;
-      SND_SOC_RT722_SDCA_SDW = lib.mkForce no;
+      # SND_SOC_RT5682_SDW = lib.mkForce no;
+      # SND_SOC_RT700_SDW = lib.mkForce no;
+      # SND_SOC_RT711_SDCA_SDW = lib.mkForce no;
+      # SND_SOC_RT711_SDW = lib.mkForce no;
+      # SND_SOC_RT712_SDCA_DMIC_SDW = lib.mkForce no;
+      # SND_SOC_RT712_SDCA_SDW = lib.mkForce no;
+      # SND_SOC_RT715_SDCA_SDW = lib.mkForce no;
+      # SND_SOC_RT715_SDW = lib.mkForce no;
+      # SND_SOC_RT721_SDCA_SDW = lib.mkForce no;
+      # SND_SOC_RT722_SDCA_SDW = lib.mkForce no;
       SND_SOC_RT9120 = lib.mkForce no;
       SND_SOC_RT9123 = lib.mkForce no;
       SND_SOC_RT9123P = lib.mkForce no;
@@ -2422,7 +2427,7 @@ rec {
       VIDEO_OV5693 = lib.mkForce no;
       VIDEO_OV5695 = lib.mkForce no;
       VIDEO_OV64A40 = lib.mkForce no;
-      VIDEO_OV6650 = lib.mkForce no;
+      # VIDEO_OV6650 = lib.mkForce no;
       VIDEO_OV7251 = lib.mkForce no;
       VIDEO_OV7640 = lib.mkForce no;
       VIDEO_OV7670 = lib.mkForce no;
