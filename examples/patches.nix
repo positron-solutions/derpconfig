@@ -76,7 +76,7 @@ rec {
   user-friendly = {
     name = "user-friendly";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {  
+    structuredExtraConfig = with lib.kernel; {
       # Give us the config back at /proc/config.gz so we can modify it!
       # On by default, just pointing it out
       IKCONFIG = lib.mkForce yes;
@@ -104,7 +104,7 @@ rec {
   custom = {
     name = "custom";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
       # Optional, neat for small user binaries, but they would all require recompile.
       # X86_X32_ABI = yes;
 
@@ -131,7 +131,7 @@ rec {
   small = {
     name = "small";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
       STRIP_ASM_SYMS = yes;
     };
   };
@@ -139,7 +139,7 @@ rec {
   not-vm = {
     name = "not-vm";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
       KVM = lib.mkForce no;
       KVM_GUEST = lib.mkForce unset;
       MOUSE_PS2_VMMOUSE = lib.mkForce unset;
@@ -157,7 +157,7 @@ rec {
   zstd-all = {
     name = "zstd-all";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
       ZRAM = lib.mkForce yes;
       ZRAM_BACKEND_LZ4 = lib.mkForce no;
       ZRAM_BACKEND_LZ4HC = lib.mkForce no;
@@ -177,7 +177,7 @@ rec {
   no-old = {
     name = "no-old";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
       # No slow / old filesystems (except boot)
       UDF_FS = lib.mkForce no;
       JFS_FS = lib.mkForce no;
@@ -272,7 +272,7 @@ rec {
   no-rare = {
     name = "no-rare";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
       SURFACE_PLATFORMS = no;
       FIREWIRE = lib.mkForce no;
       MACINTOSH_DRIVERS = no;
@@ -303,7 +303,7 @@ rec {
   no-fun = {
     name = builtins.trace "loading patch: no-fun" "no-fun";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
       INPUT_MISC = lib.mkForce no;
       INPUT_TOUCHSCREEN = lib.mkForce no;
       INPUT_TABLET = lib.mkForce no;
@@ -314,7 +314,7 @@ rec {
   no-intel = {
     name = builtins.trace "loading patch: no-intel" "no-intel";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
       X86_INTEL_LPSS = lib.mkForce no;
 
       INTEL_ATOMISP2_PM = lib.mkForce no;
@@ -381,7 +381,7 @@ rec {
   no-sec = {
     name = builtins.trace "loading patch: no-sec" "no-sec";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
       # We are not a k8s server
       CPU_MITIGATIONS = lib.mkForce no;
       SECURITY_SELINUX = lib.mkForce no;
@@ -393,7 +393,7 @@ rec {
   no-unused-crypto = {
     name = "no-unused-crypto";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
       CRYPTO_842 = lib.mkForce no;
       CRYPTO_LZ4 = lib.mkForce no;
       CRYPTO_LZ4HC = lib.mkForce no;
@@ -416,7 +416,7 @@ rec {
   streamlined = {
     name = "streamlined";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
       "64BIT" = lib.mkForce yes;
       ADVISE_SYSCALLS = lib.mkForce yes;
       AIO = lib.mkForce yes;
@@ -942,28 +942,28 @@ rec {
   peripherals-usb = {
     name = "peripherals-usb";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
     };
   };
 
   peripherals-video = {
     name = "peripherals-video";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
     };
   };
 
   peripherals-misc = {
     name = "peripherals-misc";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
     };
   };
 
   peripherals-fallout = {
     name = "peripherals-fallout";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
       IOSCHED_BFQ = module;
     };
   };
@@ -974,7 +974,7 @@ rec {
   subtract-fallout = {
     name = "localmode-fallout";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
       MAX31827 = lib.mkForce no;
       PMBUS = lib.mkForce no;
       "9P_FSCACHE" = lib.mkForce unset;
@@ -1125,7 +1125,7 @@ rec {
   addition-fallout = {
     name = "addition-fallout";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
       # Stub
     };
   };
@@ -1133,7 +1133,7 @@ rec {
   base-fallout = {
     name = "base-fallout";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
       # Stub
     };
   };
@@ -1141,7 +1141,7 @@ rec {
   no-debug = {
     name = "no-debug";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
       DEBUG_ATOMIC_SLEEP = lib.mkForce no;
       DEBUG_CGROUP_REF = lib.mkForce no;
       DEBUG_DEVRES = lib.mkForce no;
@@ -1201,7 +1201,7 @@ rec {
   localmod-unused-drm = {
     name = "localmod-unused-drm";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
       # Swathes of graphics
       DRM_NOUVEAU = no;
       DRM_NOUVEAU_GSP_DEFAULT = lib.mkForce unset;
@@ -1214,7 +1214,7 @@ rec {
   localmod-unused-gpio = with lib.kernel; {
     name = "localmod-unused-gpio";
     patch = null;
-    extraStructuredConfig = {
+    structuredExtraConfig = {
       GPIB = lib.mkForce no;
       GPIO_74X164 = lib.mkForce no;
       GPIO_74XX_MMIO = lib.mkForce no;
@@ -1277,7 +1277,7 @@ rec {
   localmod-unused-ir = with lib.kernel; {
     name = "localmod-unused-ir";
     patch = null;
-    extraStructuredConfig = {
+    structuredExtraConfig = {
       IR_IMON_DECODER = lib.mkForce no;
       IR_JVC_DECODER = lib.mkForce no;
       IR_MCE_KBD_DECODER = lib.mkForce no;
@@ -1315,7 +1315,7 @@ rec {
   localmod-unused-media = {
     name = "localmod-unused-media";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
       # MEDIA_ANALOG_TV_SUPPORT = lib.mkForce no;
       # MEDIA_ATTACH = lib.mkForce no;
       # MEDIA_CAMERA_SUPPORT = lib.mkForce no;
@@ -1335,7 +1335,7 @@ rec {
   localmod-unused-mfd = with lib.kernel; {
     name = "localmod-unused-mfd";
     patch = null;
-    extraStructuredConfig = {
+    structuredExtraConfig = {
       MFD_ACT8945A = lib.mkForce no;
       MFD_SMPRO = lib.mkForce no;
       MFD_AS3722 = lib.mkForce no;
@@ -1438,7 +1438,7 @@ rec {
   localmod-unused-net-vendors = with lib.kernel; {
     name = "localmod-unused-net-vendors";
     patch = null;  
-    extraStructuredConfig = {
+    structuredExtraConfig = {
       # NET_VENDOR_AMD = lib.mkForce no;
       # NET_VENDOR_CISCO = lib.mkForce no; # Stupid option merging...
       # NET_VENDOR_EMULEX = lib.mkForce unset; # Stupid option merging...
@@ -1518,7 +1518,7 @@ rec {
   localmod-unused-regulators = {
     name = "localmod-unused-regulators";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
       # REGULATOR_FIXED_VOLTAGE = lib.mkForce no;
       REGULATOR_88PG86X = lib.mkForce no;
       REGULATOR_88PM800 = lib.mkForce no;
@@ -1671,7 +1671,7 @@ rec {
   localmod-unused-rtc = {
     name = "localmod-unused-rtc";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
       RTC_DRV_TEST = lib.mkForce no;
       RTC_DRV_ABB5ZES3 = lib.mkForce no;
       RTC_DRV_ABEOZ9 = lib.mkForce no;
@@ -1748,7 +1748,7 @@ rec {
   localmod-unused-sensors = {
     name = "localmode-unused-sensors";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
       SENSORS_APDS990X = lib.mkForce no;
       SENSORS_BH1770 = lib.mkForce no;
       SENSORS_HDAPS = lib.mkForce no;
@@ -1940,7 +1940,7 @@ rec {
   localmod-unused-snd = with lib.kernel; {
     name = "localmod-unused-snd";
     patch = null;
-    extraStructuredConfig = {
+    structuredExtraConfig = {
       SND_AD1889 = lib.mkForce no;
       SND_ALI5451 = lib.mkForce no;
       SND_ALOOP = lib.mkForce no;
@@ -2346,7 +2346,7 @@ rec {
   localmod-unused-video = with lib.kernel; {
     name = "localmod-unused-video";
     patch = null;
-    extraStructuredConfig = {
+    structuredExtraConfig = {
       VIDEO_SOLO6X10 = lib.mkForce unset;
       VIDEO_TW5864 = lib.mkForce unset;
       VIDEO_TW68 = lib.mkForce unset;
@@ -2536,7 +2536,7 @@ rec {
   localmod-unused-wifi = {
     name = "localmod-unused-wifi";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
       WLAN_VENDOR_ADMTEK = yes;
       WLAN_VENDOR_ATH = lib.mkForce no;
       WLAN_VENDOR_ATMEL = lib.mkForce no;
@@ -2569,7 +2569,7 @@ rec {
   g14 = {
     name = "g14";
     patch = null;
-    extraStructuredConfig = with lib.kernel; {
+    structuredExtraConfig = with lib.kernel; {
       # ACPI_TINY_POWER_BUTTON = yes; # reports already set
       NR_CPUS = lib.mkForce (freeform "16");
       CPU_SUP_AMD = lib.mkForce yes;
