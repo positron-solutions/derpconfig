@@ -8,11 +8,11 @@ let
       pkgs.lld
     ];
 
-  kernel = pkgs.linuxKernel.kernels.linux_6_19.override {
+  kernel = pkgs.linuxKernel.kernels.linux_7_3.override {
     name = "linux-kernel-clang";
-    modDirVersion = "6.19.0-Clang";
+    modDirVersion = "7.3.0-Clang";
     extraMakeFlags = [
-      "KCFLAGS+=-O3"
+      "KCFLAGS+=-O2"
       "KCFLAGS+=-mtune=znver2"
       "KCFLAGS+=-march=znver2"
       "KCFLAGS+=-Wno-unused-command-line-argument"
@@ -21,10 +21,11 @@ let
       "NM=${pkgs.llvm}/bin/llvm-nm"
       "LD=${pkgs.lld}/bin/ld.lld"
       "LLVM=1"
+      "HOSTLDFLAGS=-Wl,-rpath,${lib.getLib pkgs.openssl}/lib"
 
       # For debugging builds.  Higher numbers available.
-      # "KCFLAGS+=V=1"
-      # "KCFLAGS+=W=1"
+      # "V=1"
+      # "W=1"
     ];
 
     stdenv = llvmKernelStdenv;
@@ -59,20 +60,20 @@ let
   linuxPackages_custom =  (pkgs.linuxPackagesFor kernel).extend (kfinal: kprev: {
     # Perf depends on systemtap's stapBuild derivation, which fails possibly due
     # to use of Clang
-    systemtap = kprev.systemtap.overrideAttrs (old: {
-      stapBuild = old.stapBuild.overrideAttrs (oldStap: {
-        configureFlags = (oldStap.configureFlags or []) ++ [ "--disable-Werror" ];
-      });
-    });
+    # systemtap = kprev.systemtap.overrideAttrs (old: {
+    #   stapBuild = old.stapBuild.overrideAttrs (oldStap: {
+    #     configureFlags = (oldStap.configureFlags or []) ++ [ "--disable-Werror" ];
+    #   });
+    # });
 
     # TODO this builds.  It runs.  It works.  But it is suspect to be building
     # perf with gcc when the kernel is built with Clang?
-    perf = kprev.perf.overrideAttrs (old: {
-      makeFlags = (old.makeFlags or []) ++ [
-        # Just build it with GCC..
-        "CC=${pkgs.stdenv.cc}/bin/gcc"
-      ];
-    });
+    # perf = kprev.perf.overrideAttrs (old: {
+    #   makeFlags = (old.makeFlags or []) ++ [
+    #     # Just build it with GCC..
+    #     "CC=${pkgs.stdenv.cc}/bin/gcc"
+    #   ];
+    # });
   });
 
 in {
@@ -88,12 +89,12 @@ in {
   # This override could be a lot simpler with some upstream changes and the
   # manual inclusion of the kernel module farther below would be a lot simpler.
   hardware.nvidia.package = (config.boot.kernelPackages.nvidiaPackages.mkDriver {
-    version = "590.48.01";
+    version = "595.112.07";
 
-    sha256_64bit = "sha256-ueL4BpN4FDHMh/TNKRCeEz3Oy1ClDWto1LO/LWlr1ok=";
+    sha256_64bit = "sha256-Gjjs1Tii2mIypzMBhAY69Z6fyUbJCMylVb0HkJhIufA=";
     sha256_aarch64 = "sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb=";
     openSha256 = "sha256-hECHfguzwduEfPo5pCDjWE/MjtRDhINVr4b1awFdP44=";
-    settingsSha256 = "sha256-NWsqUciPa4f1ZX6f0By3yScz3pqKJV1ei9GvOF8qIEE=";
+    settingsSha256 = "sha256-2bWSou/9J3EojhSRXBol/+yGGu2XZ6EuCptb5qXHM14=";
     persistencedSha256 = "sha256-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee=";
   }).overrideAttrs (old: {
     # TODO if there is a way to somehow override this more deeply so that it may
