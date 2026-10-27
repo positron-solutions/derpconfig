@@ -21,7 +21,7 @@ let
       "NM=${pkgs.llvm}/bin/llvm-nm"
       "LD=${pkgs.lld}/bin/ld.lld"
       "LLVM=1"
-      "HOSTLDFLAGS=-Wl,-rpath,${lib.getLib pkgs.openssl}/lib"
+      "HOSTLDFLAGS=-Wl,-rpath,${lib.getLib pkgs.openssl}/lib -Wl,-rpath,${lib.getLib pkgs.elfutils}/lib"
 
       # For debugging builds.  Higher numbers available.
       # "V=1"
