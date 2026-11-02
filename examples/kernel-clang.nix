@@ -15,8 +15,6 @@ let
     name = "linux-kernel-clang";
     modDirVersion = "7.2.0-Clang";
     extraMakeFlags = [
-      "KCFLAGS+=-O2"
-      "KCFLAGS+=-mtune=znver2"
       "KCFLAGS+=-march=znver2"
       "KCFLAGS+=-Wno-unused-command-line-argument"
       "CC=${pkgs.llvmPackages.clang-unwrapped}/bin/clang"
