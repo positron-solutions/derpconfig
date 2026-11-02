@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ...}:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let 
   # Stdenv with a few more LLVM tools available
@@ -76,11 +81,18 @@ let
     # });
   });
 
-in {
+in
+{
   # Customize the patch set in use for either adding to a tinyconfig or
   # subtracting from defconfig
-  boot.kernelPatches = with (import ./patches.nix {inherit lib;});
-    subtract ++ base ++ [ custom g14 ];
+  boot.kernelPatches =
+    with (import ./patches.nix { inherit lib; });
+    subtract
+    ++ base
+    ++ [
+      custom
+      g14
+    ];
   # boot.kernelPatches = with (import ./patches.nix {inherit lib;});
   #   addition ++ base ++ [ custom g14 ];
 
