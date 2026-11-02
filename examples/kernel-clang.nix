@@ -26,18 +26,18 @@ let
       "LLVM=1"
       "HOSTLDFLAGS=-Wl,-rpath,${lib.getLib pkgs.openssl}/lib -Wl,-rpath,${lib.getLib pkgs.elfutils}/lib"
 
-      # For debugging builds.  Higher numbers available.
+      # Verbose commands and extra warnings, higher levels available
       # "V=1"
       # "W=1"
     ];
 
     stdenv = llvmKernelStdenv;
 
-    # Config generation failing usually corresponds to your config begin edited
-    # in the output due to the incompatible options and thzerefore also failing.
+    # Config generation failing usually corresponds to your config being edited
+    # in the output due to the incompatible options and therefore also failing.
     # ignoreConfigErrors = true;
 
-    # Start with an all-no config.  It is slightly easiler to pull together
+    # Start with an all-no config.  It is slightly easier to pull together
     # enough options to get this running than to whittle down the defaults.
     # However, it is still a lot and you may miss some that are more important
     # than what you gain by starting from a clean slate.
