@@ -54,7 +54,23 @@ let
     };
   };
 
+  zfsAttr = pkgs.zfs.kernelModuleAttribute;
 
+  linuxPackages_custom = (pkgs.linuxPackagesFor kernel).extend (
+    final: prev: {
+      ${zfsAttr} = prev.${zfsAttr}.overrideAttrs (old: {
+        configureFlags =
+          lib.filter (
+            flag:
+            !lib.any (prefix: lib.hasPrefix prefix flag) [
+              "KERNEL_KCFLAGS+="
+              "KERNEL_HOSTLDFLAGS="
+            ]
+          ) old.configureFlags
+          ++ [ "KERNEL_KCFLAGS=-march=znver2" ];
+      });
+    }
+  );
 
 in
 {
