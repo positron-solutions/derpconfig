@@ -11,9 +11,9 @@ let
     pkgs.llvmPackages.bintools
   ];
 
-  kernel = pkgs.linuxKernel.kernels.linux_7_3.override {
+  kernel = pkgs.linuxKernel.kernels.linux_7_2.override {
     name = "linux-kernel-clang";
-    modDirVersion = "7.3.0-Clang";
+    modDirVersion = "7.2.0-Clang";
     extraMakeFlags = [
       "KCFLAGS+=-O2"
       "KCFLAGS+=-mtune=znver2"
