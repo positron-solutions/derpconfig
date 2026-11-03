@@ -1,5 +1,5 @@
 {
-  description = "Kernel devshell for Kernel configurationg";
+  description = "Devshells for kernel configuration.  Kernel source hacking conveniences.";
 
   inputs = {
     pins.url = "git+https://github.com/positron-solutions/pins.git";
