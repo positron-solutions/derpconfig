@@ -6,32 +6,35 @@
     nixpkgs.follows = "pins/nixpkgs";
   };
 
-  outputs = inputs: with inputs;
+  outputs =
+    inputs:
+    with inputs;
     let
       # update as needed
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
       # Select another version here or add packages for flexibility
       linuxKernel = pkgs.linuxPackages_latest.kernel;
-    in {
+    in
+    {
       # nix build will output a result that contains source tarball
       packages.${system}.default = pkgs.linuxPackages_latest.kernel.src;
 
       # nix develop will obtain tools that can be used to configure a kernel.
       devShells.${system}.default = pkgs.mkShell {
         buildInputs = with pkgs; [
-          bison          # needed by kernel build system
-          flex           # needed by kernel build system
-          gcc            # compiler
-          git            # handy to have
+          bison # needed by kernel build system
+          flex # needed by kernel build system
+          gcc # compiler
+          git # handy to have
           glibc.dev
           gnumake
-          makeWrapper    # for wrapping commands
+          makeWrapper # for wrapping commands
           ncurses
           pkg-config
           pkgs.makeWrapper
 
-          # Only needed for LLVM builds       
+          # Only needed for LLVM builds
           llvmPackages.clang
           lld
           llvm
