@@ -21,6 +21,16 @@
         default = pkgs.linuxPackages_latest.kernel.src;
       });
 
+      # This provides more direct access to the kernels, making it easier to
+      # "build" their src attributes.
+      legacyPackages = forAllSystems (
+        pkgs:
+        pkgs.linuxKernel.kernels
+        // {
+          inherit (pkgs) linux linux_latest;
+        }
+      );
+
       # nix develop will obtain tools that can be used to configure a kernel.
       devShells = forAllSystems (
         pkgs:
