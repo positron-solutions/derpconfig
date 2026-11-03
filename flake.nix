@@ -14,6 +14,34 @@
         "aarch64-linux"
       ];
       forAllSystems = f: lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
+
+      # Kernel configEnv on the LLVM toolchain
+      llvmConfigEnv =
+        pkgs: kernel:
+        kernel
+        // {
+          llvmConfigEnv =
+            (kernel.override { stdenv = pkgs.llvmPackages.stdenv; }).configEnv.overrideAttrs
+              (prev: {
+                nativeBuildInputs = prev.nativeBuildInputs or [ ] ++ [
+                  pkgs.llvmPackages.lld
+                  pkgs.llvmPackages.llvm
+                ];
+                env = prev.env or { } // {
+                  LLVM = "1";
+                };
+              });
+        };
+
+      # nixpkgs kernels
+      kernelsOf =
+        pkgs:
+        lib.mapAttrs (_: kernel: if lib.isDerivation kernel then llvmConfigEnv pkgs kernel else kernel) (
+          pkgs.linuxKernel.kernels
+          // {
+            inherit (pkgs) linux linux_latest;
+          }
+        );
     in
     {
       # nix build will output a result that contains source tarball
@@ -23,59 +51,18 @@
 
       # This provides more direct access to the kernels, making it easier to
       # "build" their src attributes.
-      legacyPackages = forAllSystems (
-        pkgs:
-        pkgs.linuxKernel.kernels
-        // {
-          inherit (pkgs) linux linux_latest;
-        }
-      );
+      legacyPackages = forAllSystems kernelsOf;
 
-      # nix develop will obtain tools that can be used to configure a kernel.
+      # Shells of the default kernel
       devShells = forAllSystems (
         pkgs:
         let
-          commonInputs = with pkgs; [
-            bison # needed by kernel build system
-            flex # needed by kernel build system
-            gcc # compiler
-            git # handy to have
-            glibc.dev
-            gnumake
-            makeWrapper # for wrapping commands
-            ncurses
-            pkg-config
-            pkgs.makeWrapper
-          ];
-
-          shellHook = ''
-            echo "Kernel devshell ready!"
-            echo "Run: make defconfig or make menuconfig inside kernel source"
-          '';
-
-          # GCC toolchain
-          gccShell = pkgs.mkShell {
-            buildInputs = commonInputs;
-            inherit shellHook;
-          };
-
-          # LLVM toolchain
-          llvmShell = pkgs.mkShell.override { stdenv = pkgs.llvmPackages.stdenv; } {
-            buildInputs =
-              commonInputs
-              ++ (with pkgs; [
-                llvmPackages.clang
-                lld
-                llvm
-              ]);
-            LLVM = 1;
-            inherit shellHook;
-          };
+          kernel = (kernelsOf pkgs).linux_latest;
         in
         {
-          gcc = gccShell;
-          llvm = llvmShell;
-          default = llvmShell;
+          gcc = kernel.configEnv;
+          llvm = kernel.llvmConfigEnv;
+          default = kernel.llvmConfigEnv;
         }
       );
     };
