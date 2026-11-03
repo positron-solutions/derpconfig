@@ -22,9 +22,10 @@
       });
 
       # nix develop will obtain tools that can be used to configure a kernel.
-      devShells = forAllSystems (pkgs: {
-        default = pkgs.mkShell {
-          buildInputs = with pkgs; [
+      devShells = forAllSystems (
+        pkgs:
+        let
+          commonInputs = with pkgs; [
             bison # needed by kernel build system
             flex # needed by kernel build system
             gcc # compiler
@@ -35,22 +36,37 @@
             ncurses
             pkg-config
             pkgs.makeWrapper
-
-            # Only needed for LLVM builds
-            llvmPackages.clang
-            lld
-            llvm
           ];
-
-          # Disable if you are not doing LVM builds
-          stdenv = pkgs.llvmPackages.stdenv;
-          LLVM = 1;
 
           shellHook = ''
             echo "Kernel devshell ready!"
-               echo "Run: make defconfig or make menuconfig inside kernel source"
+            echo "Run: make defconfig or make menuconfig inside kernel source"
           '';
-        };
-      });
+
+          # GCC toolchain
+          gccShell = pkgs.mkShell {
+            buildInputs = commonInputs;
+            inherit shellHook;
+          };
+
+          # LLVM toolchain
+          llvmShell = pkgs.mkShell.override { stdenv = pkgs.llvmPackages.stdenv; } {
+            buildInputs =
+              commonInputs
+              ++ (with pkgs; [
+                llvmPackages.clang
+                lld
+                llvm
+              ]);
+            LLVM = 1;
+            inherit shellHook;
+          };
+        in
+        {
+          gcc = gccShell;
+          llvm = llvmShell;
+          default = llvmShell;
+        }
+      );
     };
 }
