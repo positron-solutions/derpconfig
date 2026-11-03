@@ -7,44 +7,50 @@
     inputs:
     with inputs;
     let
-      # update as needed
-      system = "x86_64-linux";
-      pkgs = import nixpkgs { inherit system; };
-      # Select another version here or add packages for flexibility
-      linuxKernel = pkgs.linuxPackages_latest.kernel;
+      inherit (nixpkgs) lib;
+
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
+      forAllSystems = f: lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
     in
     {
       # nix build will output a result that contains source tarball
-      packages.${system}.default = pkgs.linuxPackages_latest.kernel.src;
+      packages = forAllSystems (pkgs: {
+        default = pkgs.linuxPackages_latest.kernel.src;
+      });
 
       # nix develop will obtain tools that can be used to configure a kernel.
-      devShells.${system}.default = pkgs.mkShell {
-        buildInputs = with pkgs; [
-          bison # needed by kernel build system
-          flex # needed by kernel build system
-          gcc # compiler
-          git # handy to have
-          glibc.dev
-          gnumake
-          makeWrapper # for wrapping commands
-          ncurses
-          pkg-config
-          pkgs.makeWrapper
+      devShells = forAllSystems (pkgs: {
+        default = pkgs.mkShell {
+          buildInputs = with pkgs; [
+            bison # needed by kernel build system
+            flex # needed by kernel build system
+            gcc # compiler
+            git # handy to have
+            glibc.dev
+            gnumake
+            makeWrapper # for wrapping commands
+            ncurses
+            pkg-config
+            pkgs.makeWrapper
 
-          # Only needed for LLVM builds
-          llvmPackages.clang
-          lld
-          llvm
-        ];
+            # Only needed for LLVM builds
+            llvmPackages.clang
+            lld
+            llvm
+          ];
 
-        # Disable if you are not doing LVM builds
-        stdenv = pkgs.llvmPackages.stdenv;
-        LLVM = 1;
+          # Disable if you are not doing LVM builds
+          stdenv = pkgs.llvmPackages.stdenv;
+          LLVM = 1;
 
-        shellHook = ''
-          echo "Kernel devshell ready!"
-          echo "Run: make defconfig or make menuconfig inside kernel source"
-        '';
-      };
+          shellHook = ''
+            echo "Kernel devshell ready!"
+               echo "Run: make defconfig or make menuconfig inside kernel source"
+          '';
+        };
+      });
     };
 }
