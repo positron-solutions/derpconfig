@@ -1,10 +1,7 @@
 {
   description = "Devshells for kernel configuration.  Kernel source hacking conveniences.";
 
-  inputs = {
-    pins.url = "git+https://github.com/positron-solutions/pins.git";
-    nixpkgs.follows = "pins/nixpkgs";
-  };
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
 
   outputs =
     inputs:
